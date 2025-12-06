@@ -1,0 +1,1 @@
+import express from 'express';const app = express();import dotenv from 'dotenv';dotenv.config();import cors from 'cors';app.use(cors());app.use(express.json());const porta = process.env.PORT;app.get('/', (req, res) => {    res.send('Api funcionando');})app.listen(porta, () => {    console.log('Servidor rodando em http://localhost:'+porta);})
