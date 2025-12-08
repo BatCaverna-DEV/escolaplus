@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "v-mask": "^2.3.0",
+    "vue-jquery-mask": "^2.0.0"
+  }
+}

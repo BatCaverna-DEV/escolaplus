@@ -63,7 +63,8 @@
 
   async function buscarCep(){
 
-    const resposta = await fetch('https://viacep.com.br/ws/'+aluno.value.cep+'/json')
+    let cep = aluno.value.cep.replace('-','')
+    const resposta = await fetch('https://viacep.com.br/ws/'+cep+'/json')
     const dados = await resposta.json()
 
     aluno.value.endereco = dados.logradouro
@@ -243,7 +244,7 @@
       <div class="row mt-3">
         <div class="col-sm-2 form-group">
           <label for="cep">CEP</label>
-          <input v-model="aluno.cep" @change="buscarCep" type="text" class="form-control" id="cep" placeholder="CEP"/>
+          <input v-mask="'#####-###'" v-model="aluno.cep" @change="buscarCep" type="text" class="form-control" id="cep" placeholder="CEP"/>
         </div>
         <div class="col-sm-8 form-group">
           <label for="endereco">ENDEREÇO</label>
@@ -302,19 +303,19 @@
         <div class="row mt-3">
           <div class="col-sm-2">
             <label for="telefone1">TELEFONE 1</label>
-            <input v-model="aluno.telefone1" type="text" class="form-control" id="telefone1" required/>
+            <input v-mask="'(##) #####-####'" v-model="aluno.telefone1" type="text" class="form-control" id="telefone1" required/>
           </div>
           <div class="col-sm-2">
             <label for="telefone1">TELEFONE 2</label>
-            <input v-model="aluno.telefone2" type="text" class="form-control" id="telefone1" required/>
+            <input v-mask="'(##) #####-####'" v-model="aluno.telefone2" type="text" class="form-control" id="telefone1" required/>
           </div>
           <div class="col-sm-2">
             <label for="telefone1">TELEFONE 3</label>
-            <input v-model="aluno.telefone3" type="text" class="form-control" id="telefone1" required/>
+            <input v-mask="'(##) #####-####'" v-model="aluno.telefone3" type="text" class="form-control" id="telefone1" required/>
           </div>
           <div class="col-sm-6 form-group">
             <label for="email">E-MAIL</label>
-            <input v-model="aluno.email" type="text" class="form-control" id="email" placeholder="E-MAIL"/>
+            <input v-mask="'(##) #####-####'" v-model="aluno.email" type="text" class="form-control" id="email" placeholder="E-MAIL"/>
           </div>
         </div>
 
@@ -325,7 +326,7 @@
         </div>
         <div class="col-sm-3 form-group">
           <label for="cpf_pai">CPF DO PAI</label>
-          <input v-model="aluno.cpf_pai" type="text" class="form-control" id="cpf_pai" placeholder="CPF do Pai"/>
+          <input v-mask="'###.###.###-##'" v-model="aluno.cpf_pai" type="text" class="form-control" id="cpf_pai" placeholder="CPF do Pai"/>
         </div>
       </div>
 
@@ -336,7 +337,7 @@
         </div>
         <div class="col-sm-3 form-group">
           <label for="cpf_mae">CPF DA MÃE</label>
-          <input v-model="aluno.cpf_mae" type="text" class="form-control" id="cpf_mae" placeholder="CPF da Mãe"/>
+          <input v-mask="'###.###.###-##'" v-model="aluno.cpf_mae" type="text" class="form-control" id="cpf_mae" placeholder="CPF da Mãe"/>
         </div>
       </div>
 

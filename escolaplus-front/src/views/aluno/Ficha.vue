@@ -25,10 +25,13 @@ onMounted(async () => {
       <h3><i class="fas fa-user-graduate"></i>Ficha do Aluno</h3>
       <ul class="nav justify-content-end">
         <li class="nav-item">
-          <RouterLink :to="'/aluno/editar/'+aluno.id" class="btn btn-primary mx-1">Editar</RouterLink>
+          <RouterLink :to="'/aluno/matricular/'+aluno.id" class="btn btn-sm btn-warning mx-1">Matricular</RouterLink>
         </li>
         <li class="nav-item">
-          <RouterLink to="/aluno/principal" class="btn btn-secondary">Voltar</RouterLink>
+          <RouterLink :to="'/aluno/editar/'+aluno.id" class="btn btn-sm btn-primary mx-1">Editar</RouterLink>
+        </li>
+        <li class="nav-item">
+          <RouterLink to="/aluno/principal" class="btn btn-sm btn-secondary">Voltar</RouterLink>
         </li>
       </ul>
     </nav>
