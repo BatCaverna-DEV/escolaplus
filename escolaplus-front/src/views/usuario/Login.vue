@@ -27,7 +27,7 @@
       const token = await resposta.json()
       if(resposta.ok){
         setToken(token.value)
-        const redirectTo = (route.query.redirect ?? '/admin');
+        const redirectTo = (route.query.redirect ?? '/');
         router.replace(redirectTo);
       }else{
         erro.value = token.message
@@ -45,7 +45,7 @@
 <template>
   <Navbar/>
   <div class="col-md-3 mx-auto bg-body-secondary m-2 p-4 rounded rounded-2 shadow">
-    <img src="../../assets/batman.png" alt="" class="w-50 d-block mx-auto">
+    <img src="../../assets/logo.png" alt="" class="w-50 d-block mx-auto my-4">
     <h5 class="text-center my-4">Acesso ao EscolaPlus</h5>
 
     <div v-if="erro" class="alert alert-danger" role="alert">

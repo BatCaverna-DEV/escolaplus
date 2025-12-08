@@ -51,7 +51,7 @@
       if(resposta.ok){
         const aluno = await resposta.json()
         alert(aluno.message)
-        router.push('/ficha/'+aluno.id)
+        router.push('/aluno/ficha/'+aluno.id)
       }else{
         const msg = await resposta.json()
         erro.value = `${resposta.status} - ${msg.message}`
@@ -191,21 +191,19 @@
     </div>
 
     <div class="row">
-    <div class="col-sm-3">
+    <div class="col-sm-2">
       <h5 class="text-center">Foto do Aluno</h5>
       <video
           ref="video"
           autoplay
           playsinline
-          width="310"
-          height="230"
-          class="border border-1"
+          class="border border-1 w-100"
       ></video>
 
-      <div class="mt-2">
-        <button @click="iniciarCamera" class="btn btn-sm btn-primary">Câmera</button>
-        <button @click="capturarFoto" class="btn btn-sm btn-primary mx-1" :disabled="!cameraAtiva">Capturar</button>
-        <button @click="pararCamera" class="btn btn-sm btn-primary me-1" :disabled="!cameraAtiva">Parar</button>
+      <div class="mt-2 d-flex flex-wrap justify-content-center gap-2">
+        <button @click="iniciarCamera" class="btn btn-sm btn-primary ">Câmera</button>
+        <button @click="capturarFoto" class="btn btn-sm btn-primary " :disabled="!cameraAtiva">Capturar</button>
+        <button @click="pararCamera" class="btn btn-sm btn-primary " :disabled="!cameraAtiva">Parar</button>
 
         <!-- NOVO: carregar foto do computador -->
         <button type="button" class="btn btn-sm btn-primary" @click="escolherArquivo">Carregar</button>
@@ -216,7 +214,7 @@
       <!-- PRÉVIA DA FOTO -->
       <div v-if="aluno.foto" class="mt-3">
         <h5 class="text-center">Foto capturada:</h5>
-        <img :src="aluno.foto" alt="Foto da webcam" width="310" />
+        <img :src="aluno.foto" alt="Foto da webcam" class="w-100" />
       </div>
 
       <!-- BASE64 PURO (OPCIONAL) -->
@@ -315,7 +313,7 @@
           </div>
           <div class="col-sm-6 form-group">
             <label for="email">E-MAIL</label>
-            <input v-mask="'(##) #####-####'" v-model="aluno.email" type="text" class="form-control" id="email" placeholder="E-MAIL"/>
+            <input v-model="aluno.email" type="text" class="form-control" id="email" placeholder="E-MAIL"/>
           </div>
         </div>
 
@@ -343,7 +341,7 @@
 
       <div class="row mt-3">
 
-        <div class="col-sm-7 form-group">
+        <div class="col-sm form-group">
           <label for="alergia">ALERGIA</label>
           <input v-model="aluno.alergia" type="text" class="form-control" id="alergia" placeholder="ALERGIA"/>
         </div>

@@ -21,15 +21,21 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'login',
-      component: Login,
+      name: 'admin',
+      component: Admin,
+      meta: {requiresAuth: true},
     },
-    {
-        path: '/admin',
-        name: 'admin',
-        component: Admin,
-        meta: {requiresAuth: true},
-    },
+      {
+          path: '/login',
+          name: 'login',
+          component: Login,
+      },
+    // {
+    //     path: '/admin',
+    //     name: 'admin',
+    //     component: Admin,
+    //     meta: {requiresAuth: true},
+    // },
 
       {
           path: '/aluno',
@@ -59,7 +65,7 @@ const router = createRouter({
           name: 'logout',
           beforeEnter: (to, from, next) => {
               localStorage.removeItem('escola_token');
-              next('/')
+              next('/login')
           }
       },
       // ⚠️ esta rota precisa ser a última
@@ -120,14 +126,14 @@ router.beforeEach((to) => {
 
     // bloquear páginas só para visitantes se já logado
     if (to.meta?.guestOnly && logged) {
-        return { path: '/admin' }
+        return { path: '/' }
     }
 
     // checar meta.requiresAuth inclusive em rotas filhas/pais
     const needsAuth = to.matched.some(r => r.meta?.requiresAuth)
     if (needsAuth && !logged) {
         //return { name: 'login', query: { redirect: to.fullPath } }
-        return {path: '/'}
+        return {path: '/login'}
     }
 
     return true

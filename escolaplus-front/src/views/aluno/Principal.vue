@@ -4,6 +4,7 @@
   import {ref, onMounted} from "vue";
   import {apiFetch} from "@/services/http.js";
   import {dataBrasil} from "@/services/format.js";
+  import {statusAluno} from "@/services/format.js";
 
   const alunos = ref([])
 
@@ -24,7 +25,7 @@
         <h4>Alunos</h4>
         <span>
           <a class="btn btn-primary mx-1" href="/aluno/cadastrar">Novo</a>
-          <a class="btn btn-secondary mx-1" href="/admin">Voltar</a>
+          <a class="btn btn-secondary mx-1" href="/">Voltar</a>
         </span>
       </div>
     </nav>
@@ -48,35 +49,41 @@
       </fieldset>
     </form>
 
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th></th>
-          <th>DADOS PRINCIPAIS</th>
-          <th>STATUS</th>
-          <th></th>
-        </tr>
-      </thead>
+    <div class="row my-2">
+      <div class="col-sm-2"></div>
+      <div class="col-sm-7"><strong>DADOS PRINCIPAIS</strong></div>
+      <div class="col-sm-2"><strong>STATUS</strong></div>
+      <div class="col-sm-1"><strong>AÇÕES</strong></div>
+    </div>
 
-      <tbody>
-        <tr v-for="aluno in alunos">
-          <td>
-            <img :src="aluno.foto" width="50px">
-          </td>
-          <td>
-            <h5>
-              <RouterLink :to="'/aluno/ficha/'+aluno.id" class="text-decoration-none">{{aluno.nome}}</RouterLink>
-            </h5>
-            <div>MATRÍCULA: </div>
-            <div>NASCIMENTO: {{dataBrasil(aluno.nascimento)}}</div>
-          </td>
-          <td>{{ aluno.status }}</td>
-          <td>
-            <RouterLink :to="'/aluno/ficha/'+aluno.id" class="btn btn-sm btn-outline-secondary">Abrir</RouterLink>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="row my-2 bg-body-secondary p-1" v-for="aluno in alunos">
+
+      <div class="col-sm-2">
+        <img :src="aluno.foto" width="100px" height="70px" class="rounded rounded-1">
+      </div>
+
+      <div class="col-sm-7">
+        <h5>
+          <RouterLink :to="'/aluno/ficha/'+aluno.id" class="text-decoration-none">{{aluno.nome}}</RouterLink>
+        </h5>
+        <div>MATRÍCULA: </div>
+        <div>NASCIMENTO: {{dataBrasil(aluno.nascimento)}}</div>
+      </div>
+
+      <div class="col-sm-2 pt-4">
+        <span
+            :class="['mt-3',
+            {
+              'text-danger': aluno.status == 0,
+              'text-success': aluno.status == 1,
+              'fw-bolder': aluno.status == 1,
+            }]">{{statusAluno(aluno.status)}}</span>
+      </div>
+
+      <div class="col-sm-1">
+        <button class="btn btn-sm btn-secondary float-end mt-4">Editar</button>
+      </div>
+    </div>
 
   </div> <!-- FIM DA DIV MAIOR -->
 

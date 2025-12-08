@@ -1,8 +1,8 @@
-export function statusCalendario(status){
+export function statusAluno(status){
     if(status === 0){
-        return 'Fechado'
+        return 'Inativo'
     }else{
-        return 'Ativo'
+        return 'Matriculado'
     }
 }
 

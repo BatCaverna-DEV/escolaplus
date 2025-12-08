@@ -19,7 +19,6 @@
 
       <div class="col-sm-9">
         <div class="d-flex justify-content-end p-3 bg-light">
-          <RouterLink to="/admin" class="btn btn-sm btn-outline-success me-2" style="width: 95px;">Home</RouterLink>
           <RouterLink to="/aluno/principal" class="btn btn-sm btn-outline-success me-2" style="width: 95px;">Alunos</RouterLink>
           <RouterLink to="/admin" class="btn btn-sm btn-outline-success me-2" style="width: 95px;">Funcionários</RouterLink>
           <RouterLink to="/admin" class="btn btn-sm btn-outline-success me-2" style="width: 95px;">Turmas</RouterLink>

@@ -2,7 +2,7 @@
   <div class="not-found">
     <h1>404 - Página não encontrada</h1>
     <p>O endereço que você tentou acessar não existe.</p>
-    <RouterLink to="/admin">Voltar ao Painel</RouterLink>
+    <RouterLink to="/">Voltar ao Painel</RouterLink>
   </div>
 </template>
 
