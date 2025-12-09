@@ -1,6 +1,5 @@
 <script setup>
 
-import NavAdmin from "@/components/NavAdmin.vue";
 import {apiFetch} from "@/services/http.js";
 import {onMounted, ref} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
@@ -20,9 +19,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NavAdmin></NavAdmin>
-
-  <div class="container-sm shadow p-3">
+  <div class="container-fluid shadow p-3">
 
     <nav class="navbar bg-body-tertiary">
       <div class="container-fluid">

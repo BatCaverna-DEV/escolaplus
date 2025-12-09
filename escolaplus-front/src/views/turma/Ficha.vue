@@ -1,6 +1,5 @@
 <script setup>
 
-import NavAdmin from "@/components/NavAdmin.vue";
 import {apiFetch} from "@/services/http.js";
 import {ref, onMounted} from "vue";
 import {useRoute} from "vue-router";
@@ -27,8 +26,7 @@ onMounted(async() => {
 </script>
 
 <template>
-  <NavAdmin></NavAdmin>
-  <div class="container-sm shadow">
+  <div class="container-fluid shadow">
     <nav class="navbar bg-body-tertiary">
       <div class="container-fluid">
         <h4>Turma - {{turma.descricao}} </h4>
