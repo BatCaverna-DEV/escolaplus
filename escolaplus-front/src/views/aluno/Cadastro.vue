@@ -172,7 +172,7 @@
 </script>
 
 <template>
-  <div class="container-sm">
+  <div class="container-fluid">
     <nav class="navbar navbar-light bg-light">
       <h3><i class="fas fa-user-graduate"></i>Cadastro de Aluno</h3>
       <ul class="nav justify-content-end">
@@ -185,7 +185,7 @@
     </nav>
   </div>
 
-  <div class="container-sm">
+  <div class="container-fluid">
 
     <div v-if="erro" class="alert alert-danger" role="alert">
       <strong>ERRO: </strong> {{ erro }}

@@ -26,7 +26,7 @@ onMounted(async() => {
 </script>
 
 <template>
-  <div class="container-sm shadow">
+  <div class="container-fluid shadow">
     <nav class="navbar bg-body-tertiary">
       <div class="container-fluid">
         <h4>Turma - {{turma.descricao}} </h4>

@@ -32,7 +32,7 @@ onMounted(async () => {
       :aluno="alunoSelecionado"
       @fechar="mostrarModalMatricula = false"
   />
-  <div class="container-sm">
+  <div class="container-fluid">
     <nav class="navbar navbar-light bg-light p-3">
       <h3><i class="fas fa-user-graduate"></i>Ficha do Aluno</h3>
       <ul class="nav justify-content-end">

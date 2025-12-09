@@ -2,7 +2,6 @@
 import { RouterLink } from "vue-router";
 import {onMounted, ref} from "vue";
 import {getUser} from "@/services/token.js";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 const playload = getUser();
 const user = ref({id: playload?.id,nome: playload?.nome, username: playload?.username, email: playload?.email});

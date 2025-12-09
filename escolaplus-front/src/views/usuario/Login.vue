@@ -9,10 +9,10 @@
 
   const router = useRouter()
   const route = useRoute()
-  const playload = getUser()
-  if(playload){
-    router.push('/')
-  }
+  // const playload = getUser()
+  // if(playload){
+  //   router.push('/')
+  // }
 
   const username = ref('')
   const password = ref('')
@@ -32,9 +32,9 @@
       const token = await resposta.json()
       if(resposta.ok){
         setToken(token.value)
-        //const redirectTo = (route.query.redirect ?? '/');
-        //router.replace(redirectTo);
-        window.location.reload()
+        const redirectTo = (route.query.redirect ?? '/');
+        router.replace(redirectTo);
+        //window.location.reload()
       }else{
         erro.value = token.message
       }

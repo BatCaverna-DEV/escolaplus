@@ -36,7 +36,7 @@
 </script>
 
 <template>
-  <div class="container-sm shadow p-3">
+  <div class="container-fluid shadow p-3">
     <nav class="navbar bg-body-tertiary">
       <div class="container-fluid">
         <h4>Alunos</h4>
@@ -77,7 +77,7 @@
       <div class="col-sm-1"><strong></strong></div>
     </div>
 
-    <div class="row mt-1 rounded rounded-1 p-1" style="background-color: #f2f2f2" v-for="aluno in filtrar()">
+    <div class="row mt-1 rounded rounded-1 p-1 bg-body-tertiary" v-for="aluno in filtrar()">
 
       <div class="col-sm-1 pt-1">
         <img :src="aluno.foto" width="100px" height="70px" class="rounded rounded-1">

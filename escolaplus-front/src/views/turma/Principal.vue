@@ -19,7 +19,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container-sm shadow p-3">
+  <div class="container-fluid shadow p-3">
 
     <nav class="navbar bg-body-tertiary">
       <div class="container-fluid">
