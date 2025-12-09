@@ -5,6 +5,7 @@
   import {apiFetch} from "@/services/http.js";
   import {dataBrasil} from "@/services/format.js";
   import {statusAluno} from "@/services/format.js";
+  import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
   const alunos = ref([])
 
@@ -24,8 +25,12 @@
       <div class="container-fluid">
         <h4>Alunos</h4>
         <span>
-          <a class="btn btn-primary mx-1" href="/aluno/cadastrar">Novo</a>
-          <a class="btn btn-secondary mx-1" href="/">Voltar</a>
+          <a class="btn btn-outline-primary mx-1" href="/aluno/cadastrar">
+            <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon> Novo
+          </a>
+          <a class="btn btn-outline-secondary mx-1" href="/">
+            <font-awesome-icon icon="fa-solid fa-caret-left"/>Voltar
+          </a>
         </span>
       </div>
     </nav>
@@ -71,21 +76,19 @@
       </div>
 
       <div class="col-sm-2 pt-4">
-        <span v-if="aluno.matricula"
-            :class="['mt-3',
+        <span :class="['mt-3',
             {
               'text-danger': aluno.status == 0,
               'text-success': aluno.status == 1,
               'fw-bolder': aluno.status == 1,
             }]">{{statusAluno(aluno.status)}}</span>
 
-        <span v-if="!aluno.matricula" class="text-danger">
-          Inativo
-        </span>
       </div>
 
       <div class="col-sm-1">
-        <button class="btn btn-sm btn-secondary float-end mt-4">Editar</button>
+        <RouterLink :to="'/aluno/ficha/'+aluno.id" class="btn btn-outline-secondary text-decoration-none float-end mt-4">
+          <font-awesome-icon icon="fa-solid fa-eye"></font-awesome-icon>
+        </RouterLink>
       </div>
     </div>
 

@@ -7,7 +7,6 @@ import Nota from '../models/Nota.js'
 import {semfoto} from "../helpers/foto.js";
 import {gerarMatricula} from "../helpers/matricula.js";
 import Matricula from "../models/Matricula.js";
-import diario from "../models/Diario.js";
 
 class AlunoController {
 
@@ -18,8 +17,7 @@ class AlunoController {
                 dados.foto = semfoto
             }
 
-            dados.status = 1
-            dados.matricula = gerarMatricula()
+            dados.status = 0
 
             Aluno.create(dados).then((aluno)=>{
                 return res.status(200).json({message:"Aluno cadastrado com sucesso", id: aluno.id})
@@ -54,7 +52,11 @@ class AlunoController {
                 include:{
                     model: Matricula,
                     as: 'matriculas',
-                    required: false
+                    required: false,
+                    include: {
+                        model: Turma,
+                        as: 'turma'
+                    }
                 }
             });
             console.log(aluno);
@@ -71,6 +73,7 @@ class AlunoController {
 
         const dados = req.body
         const turma = await Turma.findByPk(dados.turma_id);
+        const aluno = await Aluno.findByPk(dados.aluno_id);
         const diarios = await Diario.findAll({
             where: {
                 turma_id: turma.id
@@ -90,6 +93,9 @@ class AlunoController {
 
         //cria a matrícula
         const matricula = await Matricula.create(dados)
+
+        //Atualiza o status do aluno
+        await aluno.update({status: 1})
 
         //Gerar as notas dos diários
         for(const diario of diarios){
@@ -125,7 +131,7 @@ class AlunoController {
             await Nota.create(final)
         }//fim do for do diário
 
-        return res.status(200).json({message:"Aluno matriculado com sucesso!"})
+        return res.status(200).json({message:"Aluno matriculado com sucesso!", id:matricula.aluno_id})
 
     }//Fim do matricular
 
