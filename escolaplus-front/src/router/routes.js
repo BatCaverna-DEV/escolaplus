@@ -9,6 +9,9 @@ import NotFound from '../components/NotFound.vue'
 import AlunoPrincipal from '@/views/aluno/Principal.vue'
 import AlunoCadastro from '@/views/aluno/Cadastro.vue'
 import AlunoFicha from '@/views/aluno/Ficha.vue'
+//TURMA
+import TurmaPrincipal from '@/views/turma/Principal.vue'
+import TurmaFicha from '@/views/turma/Ficha.vue'
 
 const RouterViewOnly = {
     render(){
@@ -56,6 +59,23 @@ const router = createRouter({
                   path: 'ficha/:id',
                   name: 'aluno.ficha',
                   component: AlunoFicha,
+              }
+          ]
+      },
+      {
+          path: '/turma',
+          component: RouterViewOnly,
+          meta: {group:'turma', requiresAuth: true},
+          children: [
+              {
+                  path:'principal',
+                  name: 'principal',
+                  component: TurmaPrincipal,
+              },
+              {
+                  path: 'ficha/:id',
+                  name: 'ficha',
+                  component: TurmaFicha,
               }
           ]
       },
