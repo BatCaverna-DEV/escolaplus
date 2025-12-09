@@ -17,9 +17,24 @@ const alunoSelecionado = ref(null)
 
 
 onMounted(async () => {
-  const resposta = await apiFetch('/aluno/get/'+id)
-  aluno.value = await resposta.json()
+  try{
+    const resposta = await apiFetch('/aluno/get/'+id)
+    if(resposta.status == 400){
+      const msg = await resposta.json()
+      alert(msg.message)
+    }
+    aluno.value = await resposta.json()
+    aluno.value.matricula = aluno.value.matriculas.find(m =>m.status === 1)
+  }catch(error){
+    alert(error.message)
+  }
+
 })
+
+function abrirMatricula(aluno) {
+  alunoSelecionado.value = aluno
+  mostrarModalMatricula.value = true
+}
 
 </script>
 
@@ -30,8 +45,8 @@ onMounted(async () => {
       <h3><i class="fas fa-user-graduate"></i>Ficha do Aluno</h3>
       <ul class="nav justify-content-end">
         <li class="nav-item">
-          <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            Matricula
+          <button @click="abrirMatricula(aluno)" v-if="!aluno.matricula" class="btn btn-sm btn-warning">
+            Matrícular
           </button>
         </li>
         <li class="nav-item">
@@ -43,6 +58,9 @@ onMounted(async () => {
       </ul>
     </nav>
 
+
+
+<!--  FDIM-->
     <div class="shadow p-3">
       <div class="row">
         <div class="col-sm-2 pt-3">
@@ -112,6 +130,10 @@ onMounted(async () => {
             <input :value="aluno.email" type="text" class="form-control" id="email" disabled="disabled" />
           </div>
         </div>
+      <!-- INÍCIO DAS ABAS -->
+        
+      <!-- FIM DAS ABAS-->
+
 
         <fieldset class="mt-3 border border-1 p-2">
           <legend>Dados dos Pais</legend>
@@ -166,7 +188,13 @@ onMounted(async () => {
     </div>
 
   </div> <!-- FIM DA DIV MAIOR -->
-  <Matricula/>
+
+  <!-- MOSTRA A TELA DE MATRICULAR O ALUNO -->
+  <Matricula
+      v-if="mostrarModalMatricula"
+      :aluno="alunoSelecionado"
+      @fechar="mostrarModalMatricula = false"
+  />
 </template>
 
 <style scoped>

@@ -1,6 +1,5 @@
 import banco from '../config/banco.js'
 import Turma from './Turma.js'
-import Aluno from './Aluno.js'
 
 const Matricula = banco.sequelize.define('matriculas', {
 
@@ -30,12 +29,12 @@ Matricula.belongsTo(Turma, {
     as: 'turma',
 })
 
-Matricula.belongsTo(Aluno, {
-    foreignKey: 'aluno_id',
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-    constraints: true,
-    as: 'aluno',
-})
+// Matricula.belongsTo(Aluno, {
+//     foreignKey: 'aluno_id',
+//     onDelete: 'CASCADE',
+//     onUpdate: 'CASCADE',
+//     constraints: true,
+//     as: 'aluno',
+// })
 
 export default Matricula

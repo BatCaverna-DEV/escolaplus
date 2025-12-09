@@ -19,6 +19,10 @@ const Turma = banco.sequelize.define('turmas', {
 
     status:{
         type: banco.Sequelize.INTEGER
+    },
+
+    ordem:{
+        type: banco.Sequelize.INTEGER,
     }
 
 })

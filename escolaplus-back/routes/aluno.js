@@ -6,5 +6,6 @@ import Aluno from '../controllers/AlunoController.js';
 router.post('/salvar', auth, Aluno.salvar)
 router.get('/listar', auth, Aluno.listar);
 router.get('/get/:id', auth, Aluno.get);
+router.post('/matricular', auth, Aluno.matricular);
 
 export default router
