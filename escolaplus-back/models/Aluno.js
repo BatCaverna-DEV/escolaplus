@@ -95,10 +95,12 @@ const Aluno = banco.sequelize.define('alunos', {
 
     foto: {
         type: banco.Sequelize.TEXT('long')
+    },
+    codigoantigo:{
+        type: banco.Sequelize.INTEGER,
     }
 
 })
-
 
 // RELACIONAMENTO: aluno pertence a um usuário
 Aluno.belongsTo(Usuario, {

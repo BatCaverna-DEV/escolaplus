@@ -3,6 +3,7 @@
   import { ref, onBeforeUnmount, computed } from 'vue'
   import {useRouter} from 'vue-router'
   import {apiFetch} from "@/services/http.js";
+  import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
   // v-model no componente: modelValue <-> update:modelValue
   const video = ref(null)
@@ -178,7 +179,9 @@
       <h3><i class="fas fa-user-graduate"></i>Cadastro de Aluno</h3>
       <ul class="nav justify-content-end">
         <li class="nav-item">
-          <RouterLink to="/aluno/principal" class="btn btn-secondary">Voltar</RouterLink>
+          <RouterLink to="/aluno/principal" class="btn btn-outline-secondary">
+            <font-awesome-icon icon="fa-solid fa-caret-left"/>Voltar
+          </RouterLink>
         </li>
       </ul>
     </nav>

@@ -1,16 +1,18 @@
 export function statusAluno(status){
-    if(status === 0){
+    if(status == 0){
         return 'Inativo'
     }else{
         return 'Matriculado'
     }
 }
 
-export function statusUsuario(status){
+export function statusMatricula(status){
     if(status === 1){
-        return 'Professor'
+        return 'Matriculado'
     }else if(status === 2){
-        return 'Coordenador'
+        return 'Encerrado'
+    }else {
+        return 'Cancelado'
     }
 }
 

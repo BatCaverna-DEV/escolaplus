@@ -4,7 +4,7 @@ import NavAdmin from "@/components/NavAdmin.vue";
 import {useRoute} from "vue-router";
 import {onMounted, ref} from "vue";
 import {apiFetch} from "@/services/http.js";
-import {dataBrasil} from "@/services/format.js"
+import {dataBrasil, statusAluno, statusMatricula} from "@/services/format.js"
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Matricula from "@/components/Matricula.vue";
 
@@ -15,52 +15,43 @@ const aluno = ref({})
 const mostrarModalMatricula = ref(false)
 const alunoSelecionado = ref(null)
 
-
-onMounted(async () => {
-  try{
-    const resposta = await apiFetch('/aluno/get/'+id)
-    if(resposta.status == 400){
-      const msg = await resposta.json()
-      alert(msg.message)
-    }
-    aluno.value = await resposta.json()
-    aluno.value.matricula = aluno.value.matriculas.find(m =>m.status === 1)
-  }catch(error){
-    alert(error.message)
-  }
-
-})
-
 function abrirMatricula(aluno) {
   alunoSelecionado.value = aluno
   mostrarModalMatricula.value = true
 }
 
+onMounted(async () => {
+  const resposta = await apiFetch('/aluno/get/'+id)
+  aluno.value = await resposta.json()
+})
+
 </script>
 
 <template>
   <NavAdmin></NavAdmin>
+  <Matricula
+      v-if="mostrarModalMatricula"
+      :aluno="alunoSelecionado"
+      @fechar="mostrarModalMatricula = false"
+  />
   <div class="container-sm">
     <nav class="navbar navbar-light bg-light p-3">
       <h3><i class="fas fa-user-graduate"></i>Ficha do Aluno</h3>
       <ul class="nav justify-content-end">
-        <li class="nav-item">
-          <button @click="abrirMatricula(aluno)" v-if="!aluno.matricula" class="btn btn-sm btn-warning">
+        <li class="nav-item" v-if="aluno.status == 0">
+<!--          <RouterLink :to="'/aluno/matricular/'+aluno.id" class="btn btn-sm btn-warning mx-1">Matricular</RouterLink>-->
+          <button @click="abrirMatricula(aluno)" class="btn btn-sm btn-warning mx-1">
             Matrícular
           </button>
         </li>
         <li class="nav-item">
-          <RouterLink :to="'/aluno/editar/'+aluno.id" class="btn btn-sm btn-primary mx-1">Editar</RouterLink>
-        </li>
-        <li class="nav-item">
-          <RouterLink to="/aluno/principal" class="btn btn-sm btn-secondary">Voltar</RouterLink>
+          <RouterLink to="/aluno/principal" class="btn btn-sm btn-secondary">
+            <font-awesome-icon icon="fa-solid fa-caret-left"/> Voltar
+          </RouterLink>
         </li>
       </ul>
     </nav>
 
-
-
-<!--  FDIM-->
     <div class="shadow p-3">
       <div class="row">
         <div class="col-sm-2 pt-3">
@@ -70,13 +61,17 @@ function abrirMatricula(aluno) {
         <div class="col-sm-10">
 
           <div class="row">
-            <div class="col-sm-9">
+            <div class="col-sm-7">
               <label for="nome">NOME DO ALUNO</label>
               <input :value="aluno.nome" type="text" class="form-control" id="nome" disabled="disabled" />
             </div>
             <div class="col-sm-3">
               <label for="nascimento">NASCIMENTO</label>
               <input :value="dataBrasil(aluno.nascimento)" type="text" class="form-control" id="nascimento" disabled="disabled" />
+            </div>
+            <div class="col-sm-2">
+              <label for="status">STATUS</label>
+              <input :value="statusAluno(aluno.status)" type="text" class="form-control" id="status" disabled="disabled" />
             </div>
           </div>
 
@@ -130,71 +125,96 @@ function abrirMatricula(aluno) {
             <input :value="aluno.email" type="text" class="form-control" id="email" disabled="disabled" />
           </div>
         </div>
-      <!-- INÍCIO DAS ABAS -->
-        
-      <!-- FIM DAS ABAS-->
 
+        <!-- INICIO DAS ABAS-->
 
-        <fieldset class="mt-3 border border-1 p-2">
-          <legend>Dados dos Pais</legend>
+        <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="matricula-tab" data-bs-toggle="tab" data-bs-target="#matricula" type="button" role="tab">
+              Dados de Matrícula
+            </button>
+          </li>
 
-          <div class="row mt-3">
-            <div class="col-sm-10">
-              <label for="pai">NOME DO PAI</label>
-              <input :value="aluno.pai" type="text" class="form-control" id="pai" disabled="disabled" />
-            </div>
-            <div class="col-sm-2">
-              <label for="cpf_pai">CPF DO PAI</label>
-              <input :value="aluno.cpf_pai" type="text" class="form-control" id="cpf_pai" disabled="disabled" />
-            </div>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pais-tab" data-bs-toggle="tab" data-bs-target="#pais" type="button" role="tab">
+              Dados dos Pais
+            </button>
+          </li>
+
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="outros-tab" data-bs-toggle="tab" data-bs-target="#outros" type="button" role="tab">
+              Outros Dados
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content mt-3" id="myTabContent">
+
+          <div class="tab-pane fade show active" id="matricula" role="tabpanel">
+            <table class="table table-striped">
+              <thead>
+              <tr>
+                <th>MATRÍCULA</th>
+                <th>TURMA</th>
+                <th>STATUS</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-for="matricula in aluno.matriculas">
+                <td>{{matricula.matricula}}</td>
+                <td> {{matricula.turma?.descricao}}</td>
+                <td>{{ statusMatricula(matricula.status) }}</td>
+              </tr>
+              </tbody>
+            </table>
           </div>
 
-          <div class="row mt-3">
-            <div class="col-sm-10">
-              <label for="pai">NOME DA MÃE</label>
-              <input :value="aluno.mae" type="text" class="form-control" id="mae" disabled="disabled" />
-            </div>
-            <div class="col-sm-2">
-              <label for="cpf_pai">CPF DA MÃE</label>
-              <input :value="aluno.cpf_mae" type="text" class="form-control" id="cpf_mae" disabled="disabled" />
-            </div>
-          </div>
+          <div class="tab-pane fade" id="pais" role="tabpanel">
 
-        </fieldset>
-
-        <div class="row">
-          <div class="col-sm">
-            <fieldset class="mt-3 border border-1 p-2">
-              <legend>Outros Dados</legend>
-
-              <p> Tem plano de saúde? <span class="border border-1 p-1">{{aluno.saude}}</span> </p>
-              <p> Em caso de problemas de saúde ou acidentes pode levar para o hospital público <span class="border border-1 p-1">{{aluno.hospital}}</span> </p>
-              <p> A imagem da criança poderá ser usada nas redes sociais? <span class="border border-1 p-1">{{aluno.redes}}</span></p>
-            </fieldset>
-          </div>
-
-          <div class="col-sm">
-            <fieldset class="mt-3 border border-1 p-2">
-              <legend>Observações</legend>
-              <div>
-                {{aluno.obs}}
+            <div class="row mt-3">
+              <div class="col-sm-10">
+                <label for="pai">NOME DO PAI</label>
+                <input :value="aluno.pai" type="text" class="form-control" id="pai" disabled="disabled" />
               </div>
-            </fieldset>
+              <div class="col-sm-2">
+                <label for="cpf_pai">CPF DO PAI</label>
+                <input :value="aluno.cpf_pai" type="text" class="form-control" id="cpf_pai" disabled="disabled" />
+              </div>
+            </div>
+
+            <div class="row mt-3">
+              <div class="col-sm-10">
+                <label for="pai">NOME DA MÃE</label>
+                <input :value="aluno.mae" type="text" class="form-control" id="mae" disabled="disabled" />
+              </div>
+              <div class="col-sm-2">
+                <label for="cpf_pai">CPF DA MÃE</label>
+                <input :value="aluno.cpf_mae" type="text" class="form-control" id="cpf_mae" disabled="disabled" />
+              </div>
+            </div>
+
+          </div> <!-- Fim da Aba dos Pais -->
+
+          <div class="tab-pane fade" id="outros" role="tabpanel">
+            <p> <span class="border border-1 p-1 bg-body-secondary">{{aluno.saude}}</span> - Tem plano de saúde?  </p>
+            <p> <span class="bg-body-secondary border border-1 p-1">{{aluno.hospital}}</span> - Em caso de problemas de saúde ou acidentes pode levar para o hospital público  </p>
+            <p> <span class="border border-1 p-1 bg-body-secondary">{{aluno.redes}}</span> - A imagem da criança poderá ser usada nas redes sociais? </p>
+
+            <p><strong>Observações</strong></p>
+            <div class="bg-body-tertiary">
+              {{aluno.obs}}
+            </div>
           </div>
-        </div>
 
+        </div> <!-- FIM DA TAB DO CONTEÚDO -->
 
-    </div><!-- Fim da Div da coluna -->
+        <!-- FIM DAS ABAS-->
+
+      </div><!-- Fim da Div da coluna -->
     </div>
 
   </div> <!-- FIM DA DIV MAIOR -->
 
-  <!-- MOSTRA A TELA DE MATRICULAR O ALUNO -->
-  <Matricula
-      v-if="mostrarModalMatricula"
-      :aluno="alunoSelecionado"
-      @fechar="mostrarModalMatricula = false"
-  />
 </template>
 
 <style scoped>
