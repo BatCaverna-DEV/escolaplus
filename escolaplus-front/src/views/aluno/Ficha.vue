@@ -6,10 +6,15 @@ import {onMounted, ref} from "vue";
 import {apiFetch} from "@/services/http.js";
 import {dataBrasil} from "@/services/format.js"
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import Matricula from "@/components/Matricula.vue";
 
 const route = useRoute();
 const id = route.params.id;
 const aluno = ref({})
+
+const mostrarModalMatricula = ref(false)
+const alunoSelecionado = ref(null)
+
 
 onMounted(async () => {
   const resposta = await apiFetch('/aluno/get/'+id)
@@ -20,15 +25,14 @@ onMounted(async () => {
 
 <template>
   <NavAdmin></NavAdmin>
-
   <div class="container-sm">
     <nav class="navbar navbar-light bg-light p-3">
       <h3><i class="fas fa-user-graduate"></i>Ficha do Aluno</h3>
       <ul class="nav justify-content-end">
         <li class="nav-item">
-          <RouterLink :to="'/aluno/matricular/'+aluno.id" class="btn btn-sm btn-warning mx-1">
-            <font-awesome-icon icon="fa-solid fa-house"/>Matricular
-          </RouterLink>
+          <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Matricula
+          </button>
         </li>
         <li class="nav-item">
           <RouterLink :to="'/aluno/editar/'+aluno.id" class="btn btn-sm btn-primary mx-1">Editar</RouterLink>
@@ -162,7 +166,7 @@ onMounted(async () => {
     </div>
 
   </div> <!-- FIM DA DIV MAIOR -->
-
+  <Matricula/>
 </template>
 
 <style scoped>
