@@ -1,3 +1,10 @@
+export function statusPadrao(status) {
+    if(status == 1){
+        return 'Ativo'
+    }else{
+        return 'Inativo'
+    }
+}
 export function statusAluno(status){
     if(status == 0){
         return 'Inativo'
