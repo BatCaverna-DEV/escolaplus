@@ -56,7 +56,7 @@
       <div class="col-sm-1"><strong>AÇÕES</strong></div>
     </div>
 
-    <div class="row my-2 bg-body-secondary p-1" v-for="aluno in alunos">
+    <div class="row my-1 bg-body-secondary p-1" v-for="aluno in alunos">
 
       <div class="col-sm-2">
         <img :src="aluno.foto" width="100px" height="70px" class="rounded rounded-1">
@@ -71,13 +71,17 @@
       </div>
 
       <div class="col-sm-2 pt-4">
-        <span
+        <span v-if="aluno.matricula"
             :class="['mt-3',
             {
               'text-danger': aluno.status == 0,
               'text-success': aluno.status == 1,
               'fw-bolder': aluno.status == 1,
             }]">{{statusAluno(aluno.status)}}</span>
+
+        <span v-if="!aluno.matricula" class="text-danger">
+          Inativo
+        </span>
       </div>
 
       <div class="col-sm-1">

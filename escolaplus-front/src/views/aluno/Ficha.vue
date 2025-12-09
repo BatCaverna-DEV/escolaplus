@@ -5,27 +5,49 @@ import {useRoute} from "vue-router";
 import {onMounted, ref} from "vue";
 import {apiFetch} from "@/services/http.js";
 import {dataBrasil} from "@/services/format.js"
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import Matricula from "@/components/Matricula.vue";
 
 const route = useRoute();
 const id = route.params.id;
 const aluno = ref({})
 
+const mostrarModalMatricula = ref(false)
+const alunoSelecionado = ref(null)
+
+
 onMounted(async () => {
-  const resposta = await apiFetch('/aluno/get/'+id)
-  aluno.value = await resposta.json()
+  try{
+    const resposta = await apiFetch('/aluno/get/'+id)
+    if(resposta.status == 400){
+      const msg = await resposta.json()
+      alert(msg.message)
+    }
+    aluno.value = await resposta.json()
+    aluno.value.matricula = aluno.value.matriculas.find(m =>m.status === 1)
+  }catch(error){
+    alert(error.message)
+  }
+
 })
+
+function abrirMatricula(aluno) {
+  alunoSelecionado.value = aluno
+  mostrarModalMatricula.value = true
+}
 
 </script>
 
 <template>
   <NavAdmin></NavAdmin>
-
   <div class="container-sm">
     <nav class="navbar navbar-light bg-light p-3">
       <h3><i class="fas fa-user-graduate"></i>Ficha do Aluno</h3>
       <ul class="nav justify-content-end">
         <li class="nav-item">
-          <RouterLink :to="'/aluno/matricular/'+aluno.id" class="btn btn-sm btn-warning mx-1">Matricular</RouterLink>
+          <button @click="abrirMatricula(aluno)" v-if="!aluno.matricula" class="btn btn-sm btn-warning">
+            Matrícular
+          </button>
         </li>
         <li class="nav-item">
           <RouterLink :to="'/aluno/editar/'+aluno.id" class="btn btn-sm btn-primary mx-1">Editar</RouterLink>
@@ -36,6 +58,9 @@ onMounted(async () => {
       </ul>
     </nav>
 
+
+
+<!--  FDIM-->
     <div class="shadow p-3">
       <div class="row">
         <div class="col-sm-2 pt-3">
@@ -105,6 +130,10 @@ onMounted(async () => {
             <input :value="aluno.email" type="text" class="form-control" id="email" disabled="disabled" />
           </div>
         </div>
+      <!-- INÍCIO DAS ABAS -->
+        
+      <!-- FIM DAS ABAS-->
+
 
         <fieldset class="mt-3 border border-1 p-2">
           <legend>Dados dos Pais</legend>
@@ -160,6 +189,12 @@ onMounted(async () => {
 
   </div> <!-- FIM DA DIV MAIOR -->
 
+  <!-- MOSTRA A TELA DE MATRICULAR O ALUNO -->
+  <Matricula
+      v-if="mostrarModalMatricula"
+      :aluno="alunoSelecionado"
+      @fechar="mostrarModalMatricula = false"
+  />
 </template>
 
 <style scoped>

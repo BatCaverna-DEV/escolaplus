@@ -1,15 +1,8 @@
-export function gerarMatricula(){
+export function gerarMatricula(sigla, ordem) {
+    const ano = new Date().getFullYear(); // ex: 2025
 
-    const agora = new Date();
+    // Garante sempre 2 dígitos no número da ordem
+    const ordemFormatada = String(ordem).padStart(2, '0');
 
-    const ano = agora.getFullYear();
-    const mes = String(agora.getMonth() + 1).padStart(2, "0");
-    const dia = String(agora.getDate()).padStart(2, "0");
-
-    const hora = String(agora.getHours()).padStart(2, "0");
-    const minuto = String(agora.getMinutes()).padStart(2, "0");
-    const segundo = String(agora.getSeconds()).padStart(2, "0");
-
-    return `${ano}${mes}${dia}${hora}${minuto}${segundo}`;
-
+    return `${ano}${sigla}${ordemFormatada}`;
 }

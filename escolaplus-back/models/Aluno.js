@@ -1,5 +1,6 @@
 import banco from '../config/banco.js'
 import Usuario from './Usuario.js'
+import Matricula from './Matricula.js'
 
 const Aluno = banco.sequelize.define('alunos', {
 
@@ -105,6 +106,19 @@ Aluno.belongsTo(Usuario, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
     as: 'usuario'
+})
+
+Aluno.hasMany(Matricula, {
+    foreignKey: 'aluno_id',
+    as: 'matriculas'
+})
+
+Matricula.belongsTo(Aluno, {
+    foreignKey: 'aluno_id',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    constraints: true,
+    as: 'aluno'
 })
 
 export default Aluno

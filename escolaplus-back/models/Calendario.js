@@ -14,6 +14,15 @@ const Calendario = banco.sequelize.define('calendarios', {
     },
     status:{
         type: banco.Sequelize.INTEGER,
+    },
+    media:{
+        type: banco.Sequelize.DECIMAL(5,2),
+    },
+    etapas:{
+        type: banco.Sequelize.INTEGER,
+    },
+    notas:{
+        type: banco.Sequelize.INTEGER,
     }
 })
 
