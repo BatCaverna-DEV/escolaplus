@@ -249,22 +249,22 @@
         </div>
         <div class="col-sm-8 form-group">
           <label for="endereco">ENDEREÇO</label>
-          <input v-model="aluno.endereco" type="text" class="form-control" id="endereco" placeholder="Endereço do Aluno"/>
+          <input v-model="aluno.endereco" type="text" class="form-control" id="endereco" placeholder="Endereço do Aluno" required/>
         </div>
         <div class="col-sm-2 form-group">
           <label for="numero">NÚMERO</label>
-          <input v-model="aluno.numero" type="number" class="form-control" id="numero"/>
+          <input v-model="aluno.numero" type="number" class="form-control" id="numero" required/>
         </div>
       </div>
 
       <div class="row mt-3">
         <div class="col-sm-4 form-group">
           <label for="bairro">BAIRRO</label>
-          <input v-model="aluno.bairro" type="text" class="form-control" id="bairro"/>
+          <input v-model="aluno.bairro" type="text" class="form-control" id="bairro" required/>
         </div>
         <div class="col-sm-4 form-group">
           <label for="cidade">CIDADE</label>
-          <input v-model="aluno.cidade" type="text" class="form-control" id="cidade" placeholder="CIDADE"/>
+          <input v-model="aluno.cidade" type="text" class="form-control" id="cidade" placeholder="CIDADE" required/>
         </div>
         <div class="col-sm-4 form-group">
           <label for="estado">ESTADO</label>
@@ -308,11 +308,11 @@
           </div>
           <div class="col-sm-2">
             <label for="telefone1">TELEFONE 2</label>
-            <input v-mask="'(##) #####-####'" v-model="aluno.telefone2" type="text" class="form-control" id="telefone1" required/>
+            <input v-mask="'(##) #####-####'" v-model="aluno.telefone2" type="text" class="form-control" id="telefone1"/>
           </div>
           <div class="col-sm-2">
             <label for="telefone1">TELEFONE 3</label>
-            <input v-mask="'(##) #####-####'" v-model="aluno.telefone3" type="text" class="form-control" id="telefone1" required/>
+            <input v-mask="'(##) #####-####'" v-model="aluno.telefone3" type="text" class="form-control" id="telefone1"/>
           </div>
           <div class="col-sm-6 form-group">
             <label for="email">E-MAIL</label>
@@ -334,11 +334,11 @@
       <div class="row mt-3">
         <div class="col-sm-9 form-group">
           <label for="mae">NOME DA MÃE</label>
-          <input v-model="aluno.mae" type="text" class="form-control" id="mae" placeholder="Nome da Mãe"/>
+          <input v-model="aluno.mae" type="text" class="form-control" id="mae" placeholder="Nome da Mãe" required/>
         </div>
         <div class="col-sm-3 form-group">
           <label for="cpf_mae">CPF DA MÃE</label>
-          <input v-mask="'###.###.###-##'" v-model="aluno.cpf_mae" type="text" class="form-control" id="cpf_mae" placeholder="CPF da Mãe"/>
+          <input v-mask="'###.###.###-##'" v-model="aluno.cpf_mae" type="text" class="form-control" id="cpf_mae" required placeholder="CPF da Mãe"/>
         </div>
       </div>
 

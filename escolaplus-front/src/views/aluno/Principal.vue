@@ -8,13 +8,31 @@
   import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
   const alunos = ref([])
+  const buscar = ref('')
+  const status = ref('0')
 
   onMounted(async () => {
+    await listar()
+  })
+
+  async function listar(){
     const resposta = await apiFetch('/aluno/listar')
     if(resposta.ok){
       alunos.value = await resposta.json()
     }
-  })
+  }
+
+  function filtrar(){
+    var lista = alunos.value;
+    if(buscar.value.length > 0){
+      lista = alunos.value.filter(aluno => aluno.nome.toLowerCase().includes(buscar.value.toLowerCase()));
+    }
+    if(status.value == '1'){
+      return lista.filter(aluno => aluno.status == 1)
+    }else{
+      return lista
+    }
+  }
 
 </script>
 
@@ -41,11 +59,11 @@
         <div class="row">
           <div class="col-sm-8">
             <label for="nome">Nome do Aluno</label>
-            <input type="text" id="nome" placeholder="Nome do aluno" class="form-control">
+            <input v-model="buscar" type="text" id="nome" placeholder="Nome do aluno" class="form-control">
           </div>
           <div class="col-sm-4">
             <label for="">STATUS</label>
-            <select id="status" class="form-select">
+            <select id="status" class="form-select" v-model="status">
               <option value="0">Todos</option>
               <option value="1">Matriculados</option>
             </select>
@@ -55,19 +73,19 @@
     </form>
 
     <div class="row my-2">
-      <div class="col-sm-2"></div>
-      <div class="col-sm-7"><strong>DADOS PRINCIPAIS</strong></div>
+      <div class="col-sm-1"></div>
+      <div class="col-sm-8"><strong>DADOS PRINCIPAIS</strong></div>
       <div class="col-sm-2"><strong>STATUS</strong></div>
-      <div class="col-sm-1"><strong>AÇÕES</strong></div>
+      <div class="col-sm-1"><strong></strong></div>
     </div>
 
-    <div class="row my-1 bg-body-secondary p-1" v-for="aluno in alunos">
+    <div class="row mt-1 rounded rounded-1 p-1" style="background-color: #f2f2f2" v-for="aluno in filtrar()">
 
-      <div class="col-sm-2">
+      <div class="col-sm-1 pt-1">
         <img :src="aluno.foto" width="100px" height="70px" class="rounded rounded-1">
       </div>
 
-      <div class="col-sm-7">
+      <div class="col-sm-8">
         <h5>
           <RouterLink :to="'/aluno/ficha/'+aluno.id" class="text-decoration-none">{{aluno.nome}}</RouterLink>
         </h5>
