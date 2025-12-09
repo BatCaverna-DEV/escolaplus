@@ -1,6 +1,5 @@
 <script setup>
 
-  import NavAdmin from "@/components/NavAdmin.vue";
   import {ref, onMounted} from "vue";
   import {apiFetch} from "@/services/http.js";
   import {dataBrasil} from "@/services/format.js";
@@ -37,7 +36,6 @@
 </script>
 
 <template>
-  <NavAdmin></NavAdmin>
   <div class="container-sm shadow p-3">
     <nav class="navbar bg-body-tertiary">
       <div class="container-fluid">

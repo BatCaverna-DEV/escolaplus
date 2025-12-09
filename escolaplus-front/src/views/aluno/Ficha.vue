@@ -1,6 +1,5 @@
 <script setup>
 
-import NavAdmin from "@/components/NavAdmin.vue";
 import {useRoute} from "vue-router";
 import {onMounted, ref} from "vue";
 import {apiFetch} from "@/services/http.js";
@@ -28,7 +27,6 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NavAdmin></NavAdmin>
   <Matricula
       v-if="mostrarModalMatricula"
       :aluno="alunoSelecionado"

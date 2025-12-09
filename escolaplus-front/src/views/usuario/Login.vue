@@ -5,9 +5,14 @@
   import {apiFetch} from "@/services/http.js";
   import {setToken} from '@/services/auth.js'
   import Navbar from "@/components/Navbar.vue";
+  import {getUser} from "@/services/token.js";
 
   const router = useRouter()
   const route = useRoute()
+  const playload = getUser()
+  if(playload){
+    router.push('/')
+  }
 
   const username = ref('')
   const password = ref('')
@@ -27,8 +32,9 @@
       const token = await resposta.json()
       if(resposta.ok){
         setToken(token.value)
-        const redirectTo = (route.query.redirect ?? '/');
-        router.replace(redirectTo);
+        //const redirectTo = (route.query.redirect ?? '/');
+        //router.replace(redirectTo);
+        window.location.reload()
       }else{
         erro.value = token.message
       }
@@ -43,7 +49,6 @@
 </script>
 
 <template>
-  <Navbar/>
   <div class="col-md-3 mx-auto bg-body-secondary m-2 p-4 rounded rounded-2 shadow">
     <img src="../../assets/logo.png" alt="" class="w-50 d-block mx-auto my-4">
     <h5 class="text-center my-4">Acesso ao EscolaPlus</h5>

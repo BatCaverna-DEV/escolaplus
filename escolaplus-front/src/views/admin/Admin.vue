@@ -1,15 +1,12 @@
 <script setup>
-  import NavAdmin from "@/components/NavAdmin.vue";
   import {getUser} from "@/services/token.js";
   import Perfil from "@/components/Perfil.vue";
-  import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
   const usuario = getUser()
 
 </script>
 
 <template>
-  <NavAdmin></NavAdmin>
   <div class="container-fluid">
 
     <div class="row">

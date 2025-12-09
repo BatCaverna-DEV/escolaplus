@@ -5,7 +5,7 @@ import {getUser} from "@/services/token.js";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 const playload = getUser();
-const user = ref({id: playload.id,nome: playload.nome, username: playload.username, email: playload.email});
+const user = ref({id: playload?.id,nome: playload?.nome, username: playload?.username, email: playload?.email});
 
 
 </script>
@@ -20,7 +20,7 @@ const user = ref({id: playload.id,nome: playload.nome, username: playload.userna
         </a>
         <div class="">
 
-          <div class="dropdown">
+          <div class="dropdown" v-if="playload">
             <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               <font-awesome-icon icon="fa-solid fa-circle-user"></font-awesome-icon> {{user.nome.split(' ')[0]}}
 <!--              {{user.username}}-->
