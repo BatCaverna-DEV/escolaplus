@@ -12,6 +12,8 @@ import AlunoFicha from '@/views/aluno/Ficha.vue'
 //TURMA
 import TurmaPrincipal from '@/views/turma/Principal.vue'
 import TurmaFicha from '@/views/turma/Ficha.vue'
+//FUNCIONÁRIO
+import FuncionarioPrincipal from '@/views/funcionario/Principal.vue'
 
 const RouterViewOnly = {
     render(){
@@ -76,6 +78,18 @@ const router = createRouter({
                   path: 'ficha/:id',
                   name: 'ficha',
                   component: TurmaFicha,
+              }
+          ]
+      },
+      {
+          path: '/funcionario',
+          component: RouterViewOnly,
+          meta: {group:'funcionario', requiresAuth: true},
+          children: [
+              {
+                  path:'principal',
+                  name: 'principal',
+                  component: FuncionarioPrincipal,
               }
           ]
       },
