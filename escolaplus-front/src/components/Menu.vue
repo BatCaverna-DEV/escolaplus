@@ -43,10 +43,10 @@
           </RouterLink>
         </li>
         <li class="nav-item border-bottom py-1">
-          <a href="/funcionarios/index" class="nav-link text-black">
+          <RouterLink to="/funcionario/principal" class="nav-link text-black">
             <font-awesome-icon icon="fa-solid fa-user-tie"/>
             Funcionários
-          </a>
+          </RouterLink>
         </li>
 
         <li class="nav-item border-bottom py-1">
