@@ -32,10 +32,13 @@ class AlunoController {
     listar = async function (req, res) {
         try{
             const alunos = await Aluno.findAll({
-                include:{
+                include:[{
                     model: Usuario,
                     as: 'usuario'
-                },
+                },{
+                    model: Matricula,
+                    as: 'matriculas'
+                }],
                 order:[['nome','ASC']]
             })
             return res.status(200).json(alunos)
@@ -49,20 +52,22 @@ class AlunoController {
             const id = req.params.id;
             const aluno = await Aluno.findOne({
                 where: {id: id},
-                include:{
-                    model: Matricula,
-                    as: 'matriculas',
-                    required: false,
-                    include: {
-                        model: Turma,
-                        as: 'turma'
-                    }
-                }
             });
-            console.log(aluno);
+
             if(!aluno){
                 return res.status(404).send({message:"Aluno não encontrado!"})
             }
+            aluno.matricula = await Matricula.findOne({
+                where:{
+                    aluno_id: aluno.id,
+                    status: 1
+                },
+                include:{
+                    model: Turma,
+                    as: 'turma'
+                }
+            })
+            console.log(aluno)
             return res.status(200).json(aluno)
         }catch(err){
             res.status(400).send(err);

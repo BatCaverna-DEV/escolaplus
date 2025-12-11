@@ -87,7 +87,7 @@
         <h5>
           <RouterLink :to="'/aluno/ficha/'+aluno.id" class="text-decoration-none">{{aluno.nome}}</RouterLink>
         </h5>
-        <div>MATRÍCULA: </div>
+        <div>MATRÍCULA: {{aluno.matriculas?.[0]?.matricula}}</div>
         <div>NASCIMENTO: {{dataBrasil(aluno.nascimento)}}</div>
       </div>
 
