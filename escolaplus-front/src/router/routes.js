@@ -81,7 +81,7 @@ const router = createRouter({
           children: [
               {
                   path:'principal',
-                  name: 'principal',
+                  name: 'turma.principal',
                   component: TurmaPrincipal,
               },
               {
@@ -98,7 +98,7 @@ const router = createRouter({
           children: [
               {
                   path:'principal',
-                  name: 'principal',
+                  name: 'funcionario.principal',
                   component: FuncionarioPrincipal,
               },
               {
