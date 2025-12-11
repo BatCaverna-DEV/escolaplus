@@ -15,6 +15,9 @@ import TurmaPrincipal from '@/views/turma/Principal.vue'
 import TurmaFicha from '@/views/turma/Ficha.vue'
 //FUNCIONÁRIO
 import FuncionarioPrincipal from '@/views/funcionario/Principal.vue'
+import FuncionarioFicha from '@/views/funcionario/Ficha.vue'
+import FuncionarioFoto from '@/views/funcionario/Foto.vue'
+import FuncionarioCadastro from '@/views/funcionario/Cadastro.vue'
 
 import Foto from "@/views/admin/Foto.vue";
 
@@ -43,13 +46,7 @@ const router = createRouter({
           name: 'login',
           component: Login,
       },
-    // {
-    //     path: '/admin',
-    //     name: 'admin',
-    //     component: Admin,
-    //     meta: {requiresAuth: true},
-    // },
-
+      //Grupos de Rotas
       {
           path: '/aluno',
           component: RouterViewOnly,
@@ -103,6 +100,21 @@ const router = createRouter({
                   path:'principal',
                   name: 'principal',
                   component: FuncionarioPrincipal,
+              },
+              {
+                  path: 'ficha/:id',
+                  name: 'funcionario.ficha',
+                  component: FuncionarioFicha,
+              },
+              {
+                  path: 'foto/:id',
+                  name: 'funcionario.foto',
+                  component: FuncionarioFoto,
+              },
+              {
+                  path: 'cadastrar',
+                  name: 'funcionario.cadastrar',
+                  component: FuncionarioCadastro,
               }
           ]
       },
