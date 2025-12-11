@@ -68,8 +68,10 @@ onMounted(async () => {
     <div class="shadow p-3">
       <div class="row">
         <div class="col-sm-2 pt-3">
-          <h5 class="text-center">Foto</h5>
-          <img :src="aluno.foto" class="w-100">
+          <img :src="aluno.foto" class="w-75 mx-auto d-block">
+          <p class="text-center">
+            <strong><RouterLink :to="'/aluno/foto/'+aluno.id">Alterar Foto</RouterLink></strong>
+          </p>
         </div>
         <div class="col-sm-10">
 

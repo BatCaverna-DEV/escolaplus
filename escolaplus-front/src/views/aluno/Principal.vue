@@ -80,7 +80,7 @@
     <div class="row mt-1 rounded rounded-1 p-1 bg-body-tertiary" v-for="aluno in filtrar()">
 
       <div class="col-sm-1 pt-1">
-        <img :src="aluno.foto" width="100px" height="70px" class="rounded rounded-1">
+        <img :src="aluno.foto" width="50px" class="rounded rounded-1">
       </div>
 
       <div class="col-sm-8">
