@@ -2,7 +2,6 @@
 
 import {apiFetch} from "@/services/http.js";
 import {onMounted, ref} from "vue";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 const calendario = ref({})
 const turmas = ref([])

@@ -2,7 +2,7 @@
 
   import {ref, onMounted} from "vue";
   import {apiFetch} from "@/services/http.js";
-  import {dataBrasil, statusPadrao} from "@/services/format.js";
+  import {categoriaFuncionario, dataBrasil, statusPadrao} from "@/services/format.js";
   import {statusAluno} from "@/services/format.js";
   import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
@@ -61,18 +61,19 @@
 
     <div class="row my-2">
       <div class="col-sm-1"></div>
-      <div class="col-sm-8"><strong>DADOS PRINCIPAIS</strong></div>
-      <div class="col-sm-2"><strong>STATUS</strong></div>
+      <div class="col-sm-6"><strong>DADOS PRINCIPAIS</strong></div>
+      <div class="col-sm-2 text-center"><strong>CATEGORIA</strong></div>
+      <div class="col-sm-2 text-center"><strong>STATUS</strong></div>
       <div class="col-sm-1"><strong></strong></div>
     </div>
 
     <div class="row mt-1 rounded rounded-1 p-1 bg-body-tertiary" v-for="funcionario in filtrar()">
 
       <div class="col-sm-1 pt-1">
-        <img :src="funcionario.foto" width="50px" class="rounded rounded-1">
+        <img :src="funcionario.foto" width="50px" class="">
       </div>
 
-      <div class="col-sm-8">
+      <div class="col-sm-6">
         <h5>
           <RouterLink :to="'/funcionario/ficha/'+funcionario.id" class="text-decoration-none">{{funcionario.nome}}</RouterLink>
         </h5>
@@ -81,12 +82,16 @@
       </div>
 
       <div class="col-sm-2 pt-4">
-        <span :class="['mt-3',
+        <p class="text-center">{{categoriaFuncionario(funcionario?.usuario?.categoria)}}</p>
+      </div>
+
+      <div class="col-sm-2 pt-4">
+        <p :class="['text-center',
             {
               'text-danger': funcionario.status == 0,
               'text-success': funcionario.status == 1,
               'fw-bolder': funcionario.status == 1,
-            }]">{{statusPadrao(funcionario.status)}}</span>
+            }]">{{statusPadrao(funcionario.status)}}</p>
 
       </div>
 

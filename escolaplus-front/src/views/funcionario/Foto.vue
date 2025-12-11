@@ -9,27 +9,27 @@ const video = ref(null);
 const stream = ref(null);
 const cameraAtiva = ref(false);
 const fotoRecortadaBase64 = ref("");
-const aluno = ref({})
+const funcionario = ref({})
 
 onMounted(async () => {
   let id = route.params.id;
-  const resposta = await apiFetch('/aluno/get/'+id)
-  aluno.value = await resposta.json()
+  const resposta = await apiFetch('/funcionario/get/'+id)
+  funcionario.value = await resposta.json()
 })
 
 async function salvar(){
   const dados = {
-    id: aluno.value.id,
-    foto: aluno.value.foto,
+    id: funcionario.value.id,
+    foto: funcionario.value.foto,
   }
-  const resposta = await apiFetch('/aluno/editar',{
+  const resposta = await apiFetch('/funcionario/editar',{
     method: 'POST',
     body: dados,
   })
   if(resposta.ok){
     if(resposta.status === 200){
       alert('Foto alterada com sucesso!')
-      router.push('/aluno/ficha/'+aluno.value.id)
+      router.push('/funcionario/ficha/'+funcionario.value.id)
     }
   }else{
     const msg = await resposta.json()
@@ -65,10 +65,10 @@ const fecharCamera = () => {
 
 // RECORTAR EM 3:4
 function recortarProporcao(img,
-                           proporcaoLargura = 3,
-                           proporcaoAltura = 4,
-                           qualidade = 0.65,          // qualidade JPEG para reduzir tamanho
-                           alturaFinal = 600          // redimensionamento da imagem final
+    proporcaoLargura = 3,
+    proporcaoAltura = 4,
+    qualidade = 0.65,          // qualidade JPEG para reduzir tamanho
+    alturaFinal = 600          // redimensionamento da imagem final
 ) {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
@@ -118,6 +118,7 @@ function recortarProporcao(img,
   return resizedCanvas.toDataURL("image/jpeg", qualidade);
 }
 
+
 // CAPTURAR DA CÂMERA
 const capturar = () => {
   if (!cameraAtiva.value || !video.value) return;
@@ -135,7 +136,7 @@ const capturar = () => {
   img.src = base64Original;
   img.onload = () => {
     fotoRecortadaBase64.value = recortarProporcao(img, 3, 4);
-    aluno.value.foto = fotoRecortadaBase64.value
+    funcionario.value.foto = fotoRecortadaBase64.value
   };
 };
 
@@ -150,7 +151,7 @@ const onFileChange = (event) => {
     img.src = e.target.result;
     img.onload = () => {
       fotoRecortadaBase64.value = recortarProporcao(img, 3, 4);
-      aluno.value.foto = fotoRecortadaBase64.value
+      funcionario.value.foto = fotoRecortadaBase64.value
     };
   };
   reader.readAsDataURL(file);
@@ -167,10 +168,10 @@ onBeforeUnmount(() => {
   <div class="container-fluid p-2 shadow">
 
     <nav class="navbar navbar-light bg-light">
-      <h3><i class="fas fa-user-graduate"></i>Alterar Foto: {{aluno.nome}}</h3>
+      <h3><i class="fas fa-user-graduate"></i>Alterar Foto do Funcionário: {{funcionario.nome}}</h3>
       <ul class="nav justify-content-end">
         <li class="nav-item">
-          <RouterLink :to="'/aluno/ficha/'+aluno.id" class="btn btn-outline-secondary">
+          <RouterLink :to="'/funcionario/ficha/'+funcionario.id" class="btn btn-outline-secondary">
             <font-awesome-icon icon="fa-solid fa-caret-left"/>Voltar
           </RouterLink>
         </li>
@@ -231,7 +232,7 @@ onBeforeUnmount(() => {
       <div class="col-sm-3 border border-1">
         <h5 class="text-center">Foto Atual</h5>
         <img
-            :src="aluno.foto"
+            :src="funcionario.foto"
             class="img-thumbnail d-block mx-auto"
             style="max-width: 220px; max-height: 320px;"
         />
