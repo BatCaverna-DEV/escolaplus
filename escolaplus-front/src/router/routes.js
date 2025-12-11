@@ -9,11 +9,14 @@ import NotFound from '../components/NotFound.vue'
 import AlunoPrincipal from '@/views/aluno/Principal.vue'
 import AlunoCadastro from '@/views/aluno/Cadastro.vue'
 import AlunoFicha from '@/views/aluno/Ficha.vue'
+import AlunoFoto from '@/views/aluno/Foto.vue'
 //TURMA
 import TurmaPrincipal from '@/views/turma/Principal.vue'
 import TurmaFicha from '@/views/turma/Ficha.vue'
 //FUNCIONÁRIO
 import FuncionarioPrincipal from '@/views/funcionario/Principal.vue'
+
+import Foto from "@/views/admin/Foto.vue";
 
 const RouterViewOnly = {
     render(){
@@ -30,6 +33,11 @@ const router = createRouter({
       component: Admin,
       meta: {requiresAuth: true},
     },
+      {
+          path: '/foto',
+          name: 'foto',
+          component: Foto,
+      },
       {
           path: '/login',
           name: 'login',
@@ -61,6 +69,11 @@ const router = createRouter({
                   path: 'ficha/:id',
                   name: 'aluno.ficha',
                   component: AlunoFicha,
+              },
+              {
+                  path: 'foto/:id',
+                  name: 'aluno.foto',
+                  component: AlunoFoto,
               }
           ]
       },

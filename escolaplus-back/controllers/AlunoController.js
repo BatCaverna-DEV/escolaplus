@@ -67,7 +67,6 @@ class AlunoController {
                     as: 'turma'
                 }
             })
-            console.log(aluno)
             return res.status(200).json(aluno)
         }catch(err){
             res.status(400).send(err);
@@ -139,6 +138,20 @@ class AlunoController {
         return res.status(200).json({message:"Aluno matriculado com sucesso!", id:matricula.aluno_id})
 
     }//Fim do matricular
+
+    editar = async function (req, res) {
+        const id = req.body.id;
+        try{
+            const aluno = await Aluno.findOne({
+                where: {id: id},
+            })
+            const dados = req.body
+            const aluno_alterado = await aluno.update(dados)
+            return res.status(200).json(aluno_alterado)
+        }catch(err){
+            return res.status(400).json(err);
+        }
+    }
 
 }//Fim da Classe
 

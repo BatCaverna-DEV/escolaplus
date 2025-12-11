@@ -6,11 +6,6 @@
   import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
   // v-model no componente: modelValue <-> update:modelValue
-  const video = ref(null)
-  const stream = ref(null)
-  const cameraAtiva = ref(false)
-  const fotoBase64 = ref('') // data:image/png;base64,....
-  const inputFile = ref(null)
   const erro = ref('')
 
   const router = useRouter()
@@ -81,94 +76,6 @@
   //   return fotoBase64.value.split(',')[1]
   // })
 
-  const iniciarCamera = async () => {
-    try {
-      stream.value = await navigator.mediaDevices.getUserMedia({ video: true })
-      video.value.srcObject = stream.value
-      cameraAtiva.value = true
-    } catch (err) {
-      console.error('Erro ao acessar a câmera:', err)
-      alert('Não foi possível acessar a câmera.')
-    }
-  }
-
-  const capturarFoto = async () => {
-    if (!video.value) return
-
-    // Cria um canvas em memória
-    const canvas = document.createElement('canvas')
-    const largura = video.value.videoWidth || 320
-    const altura = video.value.videoHeight || 240
-
-    canvas.width = largura
-    canvas.height = altura
-
-    const ctx = canvas.getContext('2d')
-    ctx.drawImage(video.value, 0, 0, largura, altura)
-
-    // Gera o base64 da imagem (data URL)
-    fotoBase64.value = canvas.toDataURL('image/png') // "data:image/png;base64,...."
-    aluno.value.foto = fotoBase64.value
-    aluno.value.foto = await reduzirImagem(fotoBase64.value, 320, 0.8)
-  }
-
-  const pararCamera = () => {
-    if (stream.value) {
-      stream.value.getTracks().forEach(track => track.stop())
-      stream.value = null
-    }
-    cameraAtiva.value = false
-  }
-
-  const escolherArquivo = () => {
-    inputFile.value.click()
-  }
-
-  const carregarFoto = (evento) => {
-    const arquivo = evento.target.files[0]
-
-    if (!arquivo) return
-
-    const leitor = new FileReader()
-
-    leitor.onload = async () => {
-      //aluno.value.foto = leitor.result   // Base64 da imagem
-      aluno.value.foto = await reduzirImagem(leitor.result, 320, 0.8)
-    }
-
-    leitor.readAsDataURL(arquivo) // Converte para Base64
-
-  }
-
-  async function reduzirImagem(base64, larguraMax = 320, qualidade = 0.8) {
-    return new Promise(resolve => {
-      const img = new Image()
-      img.src = base64
-
-      img.onload = () => {
-        const canvas = document.createElement('canvas')
-
-        const ratio = img.width / img.height
-        canvas.width = larguraMax
-        canvas.height = larguraMax / ratio
-
-        const ctx = canvas.getContext('2d')
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-
-        // JPEG deixa MUITO menor que PNG
-        const base64Reduzida = canvas.toDataURL("image/jpeg", qualidade)
-
-        resolve(base64Reduzida)
-      }
-    })
-  }
-
-
-  // Garante que a câmera é desligada ao sair do componente
-  onBeforeUnmount(() => {
-    pararCamera()
-  })
-
 </script>
 
 <template>
@@ -192,39 +99,6 @@
     </div>
 
     <div class="row">
-    <div class="col-sm-2">
-      <h5 class="text-center">Foto do Aluno</h5>
-      <video
-          ref="video"
-          autoplay
-          playsinline
-          class="border border-1 w-100"
-      ></video>
-
-      <div class="mt-2 d-flex flex-wrap justify-content-center gap-2">
-        <button @click="iniciarCamera" class="btn btn-sm btn-primary ">Câmera</button>
-        <button @click="capturarFoto" class="btn btn-sm btn-primary " :disabled="!cameraAtiva">Capturar</button>
-        <button @click="pararCamera" class="btn btn-sm btn-primary " :disabled="!cameraAtiva">Parar</button>
-
-        <!-- NOVO: carregar foto do computador -->
-        <button type="button" class="btn btn-sm btn-primary" @click="escolherArquivo">Carregar</button>
-        <input type="file" ref="inputFile" @change="carregarFoto" accept="image/*" style="display:none">
-
-      </div>
-
-      <!-- PRÉVIA DA FOTO -->
-      <div v-if="aluno.foto" class="mt-3">
-        <h5 class="text-center">Foto capturada:</h5>
-        <img :src="aluno.foto" alt="Foto da webcam" class="w-100" />
-      </div>
-
-      <!-- BASE64 PURO (OPCIONAL) -->
-<!--      <div class="mt-3">-->
-<!--        <h5>Base64:</h5>-->
-<!--        <textarea :value="aluno.foto" cols="60" rows="5" readonly></textarea>-->
-<!--      </div>-->
-    </div>
-
     <div class="col-sm shadow p-3">
 
       <form @submit.prevent="salvar">
