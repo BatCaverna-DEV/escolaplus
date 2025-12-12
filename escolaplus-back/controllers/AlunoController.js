@@ -52,21 +52,29 @@ class AlunoController {
             const id = req.params.id;
             const aluno = await Aluno.findOne({
                 where: {id: id},
+                include:{
+                    model: Matricula,
+                    as: 'matriculas',
+                    include: [{
+                        model: Turma,
+                        as: 'turma'
+                    }]
+                }
             });
 
             if(!aluno){
                 return res.status(404).send({message:"Aluno não encontrado!"})
             }
-            aluno.matricula = await Matricula.findOne({
-                where:{
-                    aluno_id: aluno.id,
-                    status: 1
-                },
-                include:{
-                    model: Turma,
-                    as: 'turma'
-                }
-            })
+            // aluno.matricula = await Matricula.findOne({
+            //     where:{
+            //         aluno_id: aluno.id,
+            //         status: 1
+            //     },
+            //     include:{
+            //         model: Turma,
+            //         as: 'turma'
+            //     }
+            // })
             return res.status(200).json(aluno)
         }catch(err){
             res.status(400).send(err);
