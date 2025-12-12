@@ -7,7 +7,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 // v-model no componente: modelValue <-> update:modelValue
 const erro = ref('')
-
+const salvando = ref(false)
 const router = useRouter()
 const funcionario = ref({
   nome: '',
@@ -20,20 +20,23 @@ const funcionario = ref({
 
 async function salvar() {
   erro.value = ''
-  try{
+  salvando.value = true
+  try {
     const resposta = await apiFetch('/funcionario/salvar', {
       method: 'POST',
       body: funcionario.value
     })
-    if(resposta.ok){
+    if (resposta.ok) {
       const func = await resposta.json()
       alert(func.message)
-      router.push('/funcionario/ficha/'+func.id)
-    }else{
+      router.push('/funcionario/ficha/' + func.id)
+    } else {
       const msg = await resposta.json()
       erro.value = `${resposta.status} - ${msg.message}`
+      salvando.value = false
     }
-  }catch(error){
+  } catch (error) {
+    salvando.value = false
     erro.value = error
   }
 }//Fim do salvar
@@ -56,7 +59,16 @@ async function salvar() {
     </nav>
   </div>
 
-  <div class="container-fluid shadow-sm p-2">
+  <div class="container-fluid mt-3" v-if="salvando">
+    <h5 class="text-success text-center">Salvando os dados do funcionário</h5>
+    <div class="d-flex justify-content-center">
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid shadow-sm p-2" v-if="!salvando">
 
     <div v-if="erro" class="alert alert-danger" role="alert">
       <strong>ERRO: </strong> {{ erro }}
@@ -67,7 +79,8 @@ async function salvar() {
       <div class="row mt-3">
         <div class="col-sm-2 form-group">
           <label for="cpf">CPF</label>
-          <input v-mask="'###.###.###-##'" v-model="funcionario.cpf" type="text" class="form-control" id="cpf" required/>
+          <input v-mask="'###.###.###-##'" v-model="funcionario.cpf" type="text" class="form-control" id="cpf"
+                 required/>
         </div>
         <div class="col-sm-10 form-group">
           <label for="nome">NOME DO FUNCIONARIO</label>
@@ -78,12 +91,14 @@ async function salvar() {
       <div class="row mt-3">
         <div class="col-sm-2 form-group">
           <label for="telefone1">TELEFONE 1</label>
-          <input v-mask="'(##) #####-####'" v-model="funcionario.telefone1" type="text" class="form-control" id="telefone1" required/>
+          <input v-mask="'(##) #####-####'" v-model="funcionario.telefone1" type="text" class="form-control"
+                 id="telefone1" required/>
         </div>
 
         <div class="col-sm-2 form-group">
           <label for="telefone2">TELEFONE 2</label>
-          <input v-mask="'(##) #####-####'" v-model="funcionario.telefone2" type="text" class="form-control" id="telefone2" required/>
+          <input v-mask="'(##) #####-####'" v-model="funcionario.telefone2" type="text" class="form-control"
+                 id="telefone2" required/>
         </div>
 
         <div class="col-sm-8 form-group">
@@ -96,8 +111,8 @@ async function salvar() {
         <div class="col-sm-4">
           <label for="categoria">CATEGORIA</label>
           <select id="categoria" class="form-select" required v-model="funcionario.categoria">
-            <option value="0">Secretaria</option>
-            <option value="1">Docente</option>
+            <option value="1">Secretaria</option>
+            <option value="2">Docente</option>
           </select>
         </div>
       </div>

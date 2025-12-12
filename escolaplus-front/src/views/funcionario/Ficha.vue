@@ -7,9 +7,14 @@
 
   const route = useRoute();
   const funcionario = ref({});
+  const salvando = ref(false);
 
 
   onMounted(async () => {
+    await carregar()
+  })
+
+  async function carregar(){
     try{
       var id = route.params.id;
       var resposta = await apiFetch("/funcionario/get/"+id);
@@ -17,7 +22,22 @@
     }catch(err){
       alert(resposta.status + ' - '+err.message);
     }
-  })
+  }
+
+  async function resetarSenha(){
+    try{
+      salvando.value = true
+      let resposta = await apiFetch('/usuario/acesso/'+funcionario.value.usuario_id)
+      if(resposta.ok){
+        let msg = await resposta.json();
+        await carregar()
+        salvando.value = false
+        alert(msg.message);
+      }
+    }catch(err){
+      alert(err.message);
+    }
+  }
 
 </script>
 
@@ -27,14 +47,29 @@
     <nav class="navbar navbar-light bg-light p-3">
       <h3><i class="fas fa-user-graduate"></i>Ficha do Funcionario</h3>
       <ul class="nav justify-content-end">
+        <li class="nav-item" v-if="!salvando">
+          <button @click="resetarSenha" class="btn btn-sm btn-warning me-1">
+            <font-awesome-icon icon="fa-solid fa-key"/>
+            Acesso
+          </button>
+        </li>
         <li class="nav-item">
-          <RouterLink to="/funcionario/principal" class="btn btn-sm btn-outline-secondary">
+          <RouterLink to="/funcionario/principal" class="btn btn-sm btn-secondary">
             <font-awesome-icon icon="fa-solid fa-caret-left"/>
             Voltar
           </RouterLink>
         </li>
       </ul>
     </nav>
+
+    <div class="container-fluid mt-3" v-if="salvando">
+      <h5 class="text-success text-center">Criando acesso para {{funcionario.nome}}</h5>
+      <div class="d-flex justify-content-center">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    </div>
 
     <div class="shadow p-3">
       <div class="row">

@@ -1,17 +1,19 @@
 <script setup>
-  import {RouterLink, useRouter} from 'vue-router';
-  import {getUser} from "@/services/token.js";
-  import {ref, onMounted} from "vue";
-  import {apiFetch} from "@/services/http.js";
-  import {categoriaFuncionario} from "@/services/format.js";
+import {RouterLink, useRouter} from 'vue-router';
+import {getUser} from "@/services/token.js";
+import {ref, onMounted} from "vue";
+import {apiFetch} from "@/services/http.js";
+import {categoriaFuncionario} from "@/services/format.js";
+import {useRoute} from "vue-router";
 
-  const playload = getUser();
-  const perfil = ref({})
+const playload = getUser();
+const perfil = ref({})
+const route = useRoute();
 
-  onMounted(async () => {
-    let resposta = await apiFetch('/funcionario/get/'+playload.funcionario_id);
-    perfil.value = await resposta.json();
-  })
+onMounted(async () => {
+  let resposta = await apiFetch('/funcionario/get/' + playload.funcionario_id);
+  perfil.value = await resposta.json();
+})
 
 </script>
 
@@ -30,32 +32,51 @@
       <h5 class="text-center">
         <RouterLink class="text-decoration-none" :to="'/funcionario/ficha/'+perfil.id">{{ perfil.nome }}</RouterLink>
       </h5>
-      <h5 class="text-center">{{categoriaFuncionario(perfil?.usuario?.categoria)}}</h5>
+      <h5 class="text-center">{{ categoriaFuncionario(perfil?.usuario?.categoria) }}</h5>
 
       <hr>
 
       <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item border-bottom py-1">
-          <RouterLink to="/" class="nav-link text-black" aria-current="page">
+          <RouterLink
+              to="/"
+              class="nav-link text-black"
+              :class="{ active: route.path === '/' }"
+              aria-current="page"
+          >
             <font-awesome-icon icon="fas fa-home"></font-awesome-icon>
             Início
           </RouterLink>
         </li>
 
         <li class="nav-item border-bottom py-1">
-          <RouterLink to="/aluno/principal" class="nav-link text-black">
+          <RouterLink
+              to="/aluno/principal"
+              class="nav-link text-black"
+              :class="{ active: route.path.startsWith('/aluno') }"
+          >
             <font-awesome-icon icon="fas fa-user-graduate"></font-awesome-icon>
             Alunos
           </RouterLink>
         </li>
+
         <li class="nav-item border-bottom py-1">
-          <RouterLink to="/turma/principal" class="nav-link text-black">
+          <RouterLink
+              to="/turma/principal"
+              class="nav-link text-black"
+              :class="{ active: route.path.startsWith('/turma') }"
+          >
             <font-awesome-icon icon="fa-solid fa-landmark"></font-awesome-icon>
             Turmas
           </RouterLink>
         </li>
+
         <li class="nav-item border-bottom py-1">
-          <RouterLink to="/funcionario/principal" class="nav-link text-black">
+          <RouterLink
+              to="/funcionario/principal"
+              class="nav-link text-black"
+              :class="{ active: route.path.startsWith('/funcionario') && !route.path.startsWith('/funcionario/ficha') }"
+          >
             <font-awesome-icon icon="fa-solid fa-user-tie"/>
             Funcionários
           </RouterLink>
@@ -69,13 +90,17 @@
         </li>
 
         <li class="nav-item border-bottom py-1">
-          <RouterLink to="/logout" class="nav-link text-black">
+          <RouterLink
+              to="/logout"
+              class="nav-link text-black"
+              :class="{ active: route.path === '/logout' }"
+          >
             <font-awesome-icon icon="fa-solid fa-power-off"></font-awesome-icon>
             Sair
           </RouterLink>
         </li>
-
       </ul>
+
       <hr>
 
     </div>
@@ -83,5 +108,8 @@
 </template>
 
 <style scoped>
-
+  .nav-link.active {
+    background-color: darkgray !important; /* roxo */
+    border-radius: 4px;
+  }
 </style>
