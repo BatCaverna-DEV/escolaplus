@@ -4,10 +4,12 @@
   import {ref, onMounted} from "vue";
   import {useRoute} from "vue-router";
   import {categoriaFuncionario, statusPadrao} from "@/services/format.js";
+  import {getUser} from "@/services/token.js";
 
   const route = useRoute();
   const funcionario = ref({});
   const salvando = ref(false);
+  const user = getUser()
 
 
   onMounted(async () => {
@@ -47,11 +49,17 @@
     <nav class="navbar navbar-light bg-light p-3">
       <h3><i class="fas fa-user-graduate"></i>Ficha do Funcionario</h3>
       <ul class="nav justify-content-end">
-        <li class="nav-item" v-if="!salvando">
+        <li class="nav-item" v-if="!salvando && (funcionario.usuario_id != user.usuario_id)">
           <button @click="resetarSenha" class="btn btn-sm btn-warning me-1">
             <font-awesome-icon icon="fa-solid fa-key"/>
             Acesso
           </button>
+        </li>
+        <li class="nav-item">
+          <RouterLink :to="'/funcionario/editar/'+funcionario.id" class="btn btn-sm btn-primary me-1">
+            <font-awesome-icon icon="fa-solid fa-pen-to-square"/>
+            Editar
+          </RouterLink>
         </li>
         <li class="nav-item">
           <RouterLink to="/funcionario/principal" class="btn btn-sm btn-secondary">

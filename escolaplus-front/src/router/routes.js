@@ -10,6 +10,7 @@ import AlunoPrincipal from '@/views/aluno/Principal.vue'
 import AlunoCadastro from '@/views/aluno/Cadastro.vue'
 import AlunoFicha from '@/views/aluno/Ficha.vue'
 import AlunoFoto from '@/views/aluno/Foto.vue'
+import AlunoEditar from '@/views/aluno/Editar.vue'
 //TURMA
 import TurmaPrincipal from '@/views/turma/Principal.vue'
 import TurmaFicha from '@/views/turma/Ficha.vue'
@@ -18,10 +19,12 @@ import FuncionarioPrincipal from '@/views/funcionario/Principal.vue'
 import FuncionarioFicha from '@/views/funcionario/Ficha.vue'
 import FuncionarioFoto from '@/views/funcionario/Foto.vue'
 import FuncionarioCadastro from '@/views/funcionario/Cadastro.vue'
+import FuncionarioEditar from '@/views/funcionario/Editar.vue'
 //USUÁRIO
 import UsuarioSenha from '@/views/usuario/Senha.vue'
 
 import Foto from "@/views/admin/Foto.vue";
+import Editar from "@/views/funcionario/Editar.vue";
 
 const RouterViewOnly = {
     render(){
@@ -63,6 +66,11 @@ const router = createRouter({
                   path: 'cadastrar',
                   name: 'aluno.cadastrar',
                   component: AlunoCadastro,
+              },
+              {
+                  path: 'editar/:id',
+                  name: 'aluno.editar',
+                  component: AlunoEditar,
               },
               {
                   path: 'ficha/:id',
@@ -129,6 +137,11 @@ const router = createRouter({
                   path: 'cadastrar',
                   name: 'funcionario.cadastrar',
                   component: FuncionarioCadastro,
+              },
+              {
+                  path: 'editar/:id',
+                  name: 'funcionario.editar',
+                  component: FuncionarioEditar,
               }
           ]
       },

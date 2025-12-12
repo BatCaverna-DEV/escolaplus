@@ -40,9 +40,9 @@
           <a class="btn btn-outline-primary mx-1" href="/funcionario/cadastrar">
             <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon> Novo
           </a>
-          <a class="btn btn-outline-secondary mx-1" href="/">
+          <RouterLink class="btn btn-outline-secondary mx-1" to="/">
             <font-awesome-icon icon="fa-solid fa-caret-left"/>Voltar
-          </a>
+          </RouterLink>
         </span>
       </div>
     </nav>

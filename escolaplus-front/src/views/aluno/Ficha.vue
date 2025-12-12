@@ -44,22 +44,23 @@ onMounted(async () => {
           </button>
         </li>
         <li class="nav-item me-1" v-if="aluno.status == 1">
-          <RouterLink to="/aluno/principal" class="btn btn-sm btn-outline-success">
+          <RouterLink to="/aluno/principal" class="btn btn-sm btn-success">
             <font-awesome-icon icon="fa-solid fa-print"></font-awesome-icon> Imprimir
           </RouterLink>
         </li>
         <li class="nav-item me-1" v-if="aluno.status == 1">
-          <RouterLink to="/aluno/principal" class="btn btn-sm btn-outline-success">
+          <RouterLink to="/aluno/principal" class="btn btn-sm btn-success">
             <font-awesome-icon icon="fa-solid fa-print"></font-awesome-icon> Boletim
           </RouterLink>
         </li>
         <li class="nav-item me-1">
-          <RouterLink to="/aluno/principal" class="btn btn-sm btn-outline-primary">
+          <RouterLink :to="'/aluno/editar/'+aluno.id" class="btn btn-sm btn-primary">
             <font-awesome-icon icon="fa-solid fa-pen-to-square"></font-awesome-icon> Editar
           </RouterLink>
         </li>
+
         <li class="nav-item">
-          <RouterLink to="/aluno/principal" class="btn btn-sm btn-outline-secondary">
+          <RouterLink to="/aluno/principal" class="btn btn-sm btn-secondary">
             <font-awesome-icon icon="fa-solid fa-caret-left"/> Voltar
           </RouterLink>
         </li>

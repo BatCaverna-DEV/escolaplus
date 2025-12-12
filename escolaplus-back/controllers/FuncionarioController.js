@@ -9,10 +9,20 @@ class FuncionarioController {
     salvar = async function (req, res) {
         try{
             const dados = req.body
+            //Verifica se o cpf já está cadastrado
+            const existe = await Funcionario.findOne({
+                where: {
+                    cpf: dados.cpf
+                }
+            })
+            if(existe){
+                return res.status(400).json({message: 'CPF '+dados.cpf+' já cadatrado'})
+            }
+
+            //Coloca foto SemFoto
             if(!dados.foto){
                 dados.foto = semfoto
             }
-
             dados.status = 1
 
             //Gerar Senha Temporária
@@ -84,8 +94,6 @@ class FuncionarioController {
             res.status(400).send(err);
         }
     }
-
-
 
     editar = async function (req, res) {
         const id = req.body.id;
