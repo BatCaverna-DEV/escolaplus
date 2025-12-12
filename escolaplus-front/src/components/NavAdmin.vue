@@ -37,7 +37,7 @@ onMounted(async () => {
                 </RouterLink>
               </li>
               <li>
-                <RouterLink class="dropdown-item" to="#">
+                <RouterLink class="dropdown-item" to="/usuario/senha">
                   <font-awesome-icon icon="fa-solid fa-key"></font-awesome-icon> Alterar a senha
                 </RouterLink>
               </li>

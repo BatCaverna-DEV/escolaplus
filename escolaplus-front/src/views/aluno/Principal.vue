@@ -9,9 +9,12 @@
   const alunos = ref([])
   const buscar = ref('')
   const status = ref('0')
+  const carregando = ref(true)
 
   onMounted(async () => {
+    carregando.value = true
     await listar()
+    carregando.value = false
   })
 
   async function listar(){
@@ -70,14 +73,24 @@
       </fieldset>
     </form>
 
-    <div class="row my-2">
+    <!-- Aviso de carregamento -->
+    <div class="container-fluid mt-3" v-if="carregando">
+      <h5 class="text-success text-center">Carregando alunos...</h5>
+      <div class="d-flex justify-content-center">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row my-2" v-if="!carregando">
       <div class="col-sm-1"></div>
       <div class="col-sm-8"><strong>DADOS PRINCIPAIS</strong></div>
       <div class="col-sm-2"><strong>STATUS</strong></div>
       <div class="col-sm-1"><strong></strong></div>
     </div>
 
-    <div class="row mt-1 rounded rounded-1 p-1 bg-body-tertiary" v-for="aluno in filtrar()">
+    <div class="row mt-1 rounded rounded-1 p-1 bg-body-tertiary" v-if="!carregando" v-for="aluno in filtrar()">
 
       <div class="col-sm-1 pt-1">
         <img :src="aluno.foto" width="50px" class="rounded rounded-1">

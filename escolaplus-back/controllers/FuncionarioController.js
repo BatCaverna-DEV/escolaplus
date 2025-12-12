@@ -1,6 +1,8 @@
 import Funcionario from "../models/Funcionario.js";
 import Usuario from "../models/Usuario.js";
 import {semfoto} from "../helpers/foto.js";
+import bcrypt from "bcrypt";
+import {enviarMensagem} from "../helpers/email.js";
 
 class FuncionarioController {
 
@@ -12,15 +14,33 @@ class FuncionarioController {
             }
 
             dados.status = 1
+
+            //Gerar Senha Temporária
+            const salt = await bcrypt.genSalt(10)
+            let senha = Math.floor(100000 + Math.random() * 900000).toString();
+            const password = await bcrypt.hash(senha, salt)
+
             const usuario = await Usuario.create({
                 username: dados.cpf.replace(/\D/g,''),
                 categoria: dados.categoria,
-                status: 0
+                status: 0,
+                password: password
             })
             dados.usuario_id = usuario.id
 
-            Funcionario.create(dados).then((funcionario)=>{
-                return res.status(200).json({message:"Funcionario cadastrado com sucesso", id: funcionario.id})
+            Funcionario.create(dados).then(async (funcionario)=>{
+
+                //Envia a senha temporária para o E-mail
+                let msg = `Sua senha temporária é <strong>${senha}</strong>.`;
+                await enviarMensagem({
+                    to: funcionario.email,
+                    subject: 'Senha Temporária - EscolaPlus',
+                    text: msg,
+                    html: `<h4>${msg}</h4>`,
+                })
+                console.log('Email foi enviado!')
+
+                return res.status(200).json({message:"Funcionario cadastrado com sucesso! Senha Enviada para o E-mail cadastrado!", id: funcionario.id})
             }).catch(err=>{
                 return res.status(400).json(err)
             })

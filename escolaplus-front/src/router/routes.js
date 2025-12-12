@@ -18,6 +18,8 @@ import FuncionarioPrincipal from '@/views/funcionario/Principal.vue'
 import FuncionarioFicha from '@/views/funcionario/Ficha.vue'
 import FuncionarioFoto from '@/views/funcionario/Foto.vue'
 import FuncionarioCadastro from '@/views/funcionario/Cadastro.vue'
+//USUÁRIO
+import UsuarioSenha from '@/views/usuario/Senha.vue'
 
 import Foto from "@/views/admin/Foto.vue";
 
@@ -71,6 +73,18 @@ const router = createRouter({
                   path: 'foto/:id',
                   name: 'aluno.foto',
                   component: AlunoFoto,
+              }
+          ]
+      },
+      {
+          path: '/usuario',
+          component:RouterViewOnly,
+          meta: {group:'usuario', requiresAuth: true},
+          children: [
+              {
+                  path: 'senha',
+                  name: 'usuario.senha',
+                  component: UsuarioSenha,
               }
           ]
       },
