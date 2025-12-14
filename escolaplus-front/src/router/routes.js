@@ -11,6 +11,7 @@ import AlunoCadastro from '@/views/aluno/Cadastro.vue'
 import AlunoFicha from '@/views/aluno/Ficha.vue'
 import AlunoFoto from '@/views/aluno/Foto.vue'
 import AlunoEditar from '@/views/aluno/Editar.vue'
+import AlunoImprimir  from '@/views/aluno/Imprimir.vue'
 //TURMA
 import TurmaPrincipal from '@/views/turma/Principal.vue'
 import TurmaFicha from '@/views/turma/Ficha.vue'
@@ -25,6 +26,7 @@ import UsuarioSenha from '@/views/usuario/Senha.vue'
 
 import Foto from "@/views/admin/Foto.vue";
 import Editar from "@/views/funcionario/Editar.vue";
+import Imprimir from "@/views/aluno/Imprimir.vue";
 
 const RouterViewOnly = {
     render(){
@@ -81,6 +83,11 @@ const router = createRouter({
                   path: 'foto/:id',
                   name: 'aluno.foto',
                   component: AlunoFoto,
+              },
+              {
+                  path: "imprimir/:id",
+                  name: "imprimir",
+                  component: AlunoImprimir,
               }
           ]
       },

@@ -8,5 +8,6 @@ router.get('/listar', auth, Aluno.listar);
 router.get('/get/:id', auth, Aluno.get);
 router.post('/matricular', auth, Aluno.matricular);
 router.post('/editar', auth, Aluno.editar);
+router.get('/imprimir/:id', Aluno.imprimir);
 
 export default router

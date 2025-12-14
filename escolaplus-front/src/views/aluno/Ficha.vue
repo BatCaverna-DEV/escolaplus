@@ -4,7 +4,6 @@ import {useRoute} from "vue-router";
 import {onMounted, ref} from "vue";
 import {apiFetch} from "@/services/http.js";
 import {dataBrasil, statusAluno, statusMatricula} from "@/services/format.js"
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Matricula from "@/components/Matricula.vue";
 
 const route = useRoute();
@@ -13,6 +12,7 @@ const aluno = ref({})
 
 const mostrarModalMatricula = ref(false)
 const alunoSelecionado = ref(null)
+const base_api = import.meta.env.VITE_API_BASE
 
 function abrirMatricula(aluno) {
   alunoSelecionado.value = aluno
@@ -23,6 +23,30 @@ onMounted(async () => {
   const resposta = await apiFetch('/aluno/get/'+id)
   aluno.value = await resposta.json()
 })
+
+const baixar = async () => {
+  const res = await fetch(
+      `${import.meta.env.VITE_API_BASE}/aluno/imprimir/${aluno.value.id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("escola_token")}`
+        }
+      }
+  );
+
+  const blob = await res.blob();
+
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = "ficha-"+aluno.value.nome+".pdf";
+  document.body.appendChild(a);
+  a.click();
+
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
+};
 
 </script>
 
@@ -43,10 +67,10 @@ onMounted(async () => {
             Matrícular
           </button>
         </li>
-        <li class="nav-item me-1" v-if="aluno.status == 1">
-          <RouterLink to="/aluno/principal" class="btn btn-sm btn-success">
-            <font-awesome-icon icon="fa-solid fa-print"></font-awesome-icon> Imprimir
-          </RouterLink>
+        <li class="nav-item me-1">
+            <button class="btn btn-sm btn-success" @click="baixar" v-if="aluno.status == 1">
+              <font-awesome-icon icon="fa-solid fa-print"></font-awesome-icon> Ficha
+            </button>
         </li>
         <li class="nav-item me-1" v-if="aluno.status == 1">
           <RouterLink to="/aluno/principal" class="btn btn-sm btn-success">
