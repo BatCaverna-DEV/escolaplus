@@ -37,9 +37,8 @@ class UsuarioController {
                     usuario_id: user.id,
                 }
             })
-
-            const token = jwt.sign({usuario_id: user.id, funcionario_id: funcionario.id}, secret, {expiresIn: expire} )
-
+            console.log(user)
+            const token = jwt.sign({usuario_id: user.id, funcionario_id: funcionario.id, categoria: user.categoria}, secret, {expiresIn: expire} )
             return res.status(200).json({'value': token})
         }catch(err){
             return res.status(500).json({'message': err})

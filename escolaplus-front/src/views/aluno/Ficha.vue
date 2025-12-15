@@ -26,7 +26,7 @@ onMounted(async () => {
 
 const baixar = async () => {
   const res = await fetch(
-      `${import.meta.env.VITE_API_BASE}/aluno/imprimir/${aluno.value.id}`,
+      `${import.meta.env.VITE_API_BASE}/impressao/ficha/${aluno.value.id}`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("escola_token")}`
