@@ -13,6 +13,15 @@ const Matricula = banco.sequelize.define('matriculas', {
         unique: true,
         allowNull: false
     },
+    responsavel: {
+        type: banco.Sequelize.STRING(150),
+    },
+    cpf:{
+        type: banco.Sequelize.STRING(20),
+    },
+    telefone:{
+        type: banco.Sequelize.STRING(20),
+    },
     status:{
         type: banco.Sequelize.INTEGER,
     },

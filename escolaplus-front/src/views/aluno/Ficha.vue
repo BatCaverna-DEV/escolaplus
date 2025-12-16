@@ -72,7 +72,7 @@ const baixar = async () => {
               <font-awesome-icon icon="fa-solid fa-print"></font-awesome-icon> Ficha
             </button>
         </li>
-        <li class="nav-item me-1" v-if="aluno.status == 1">
+        <li class="nav-item me-1">
           <RouterLink to="/aluno/principal" class="btn btn-sm btn-success">
             <font-awesome-icon icon="fa-solid fa-print"></font-awesome-icon> Boletim
           </RouterLink>
@@ -146,38 +146,36 @@ const baixar = async () => {
             </div>
           </div>
 
+          <div class="row mt-3">
+            <div class="col-sm-2">
+              <label for="telefone1">TELEFONE 1</label>
+              <input :value="aluno.telefone1" type="text" class="form-control" id="telefone1" disabled="disabled" />
+            </div>
+            <div class="col-sm-2">
+              <label for="telefone2">TELEFONE 2</label>
+              <input :value="aluno.telefone2" type="text" class="form-control" id="telefone2" disabled="disabled" />
+            </div>
+            <div class="col-sm-2">
+              <label for="telefone3">TELEFONE 3</label>
+              <input :value="aluno.telefone3" type="text" class="form-control" id="telefone3" disabled="disabled" />
+            </div>
+            <div class="col-sm-6">
+              <label for="email">E-MAIL</label>
+              <input :value="aluno.email" type="text" class="form-control" id="email" disabled="disabled" />
+            </div>
+          </div>
+
         </div>
 
-        <div class="row mt-3">
-          <div class="col-sm-2">
-            <label for="telefone1">TELEFONE 1</label>
-            <input :value="aluno.telefone1" type="text" class="form-control" id="telefone1" disabled="disabled" />
-          </div>
-          <div class="col-sm-2">
-            <label for="telefone2">TELEFONE 2</label>
-            <input :value="aluno.telefone2" type="text" class="form-control" id="telefone2" disabled="disabled" />
-          </div>
-          <div class="col-sm-2">
-            <label for="telefone3">TELEFONE 3</label>
-            <input :value="aluno.telefone3" type="text" class="form-control" id="telefone3" disabled="disabled" />
-          </div>
-          <div class="col-sm-6">
-            <label for="email">E-MAIL</label>
-            <input :value="aluno.email" type="text" class="form-control" id="email" disabled="disabled" />
-          </div>
-        </div>
+
 
         <!-- INICIO DAS ABAS-->
 
         <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="matricula-tab" data-bs-toggle="tab" data-bs-target="#matricula" type="button" role="tab">
-              Dados de Matrícula
-            </button>
-          </li>
+
 
           <li class="nav-item" role="presentation">
-            <button class="nav-link" id="pais-tab" data-bs-toggle="tab" data-bs-target="#pais" type="button" role="tab">
+            <button class="nav-link active" id="pais-tab" data-bs-toggle="tab" data-bs-target="#pais" type="button" role="tab">
               Dados dos Pais
             </button>
           </li>
@@ -187,15 +185,24 @@ const baixar = async () => {
               Outros Dados
             </button>
           </li>
+
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="matricula-tab" data-bs-toggle="tab" data-bs-target="#matricula" type="button" role="tab">
+              Dados de Matrícula
+            </button>
+          </li>
         </ul>
 
         <div class="tab-content mt-3" id="myTabContent">
 
-          <div class="tab-pane fade show active" id="matricula" role="tabpanel">
+          <div class="tab-pane fade" id="matricula" role="tabpanel">
             <table class="table table-striped">
               <thead>
               <tr>
                 <th>MATRÍCULA</th>
+                <th>RESPONSÁVEL</th>
+                <th>CPF</th>
+                <th>TELEFONE</th>
                 <th>TURMA</th>
                 <th>STATUS</th>
               </tr>
@@ -203,6 +210,9 @@ const baixar = async () => {
               <tbody>
               <tr v-for="matricula in aluno.matriculas">
                 <td>{{matricula.matricula}}</td>
+                <td>{{matricula.responsavel}}</td>
+                <td>{{matricula.cpf}}</td>
+                <td>{{matricula.telefone}}</td>
                 <td> {{matricula.turma?.descricao}}</td>
                 <td>{{ statusMatricula(matricula.status) }}</td>
               </tr>
@@ -210,7 +220,7 @@ const baixar = async () => {
             </table>
           </div>
 
-          <div class="tab-pane fade" id="pais" role="tabpanel">
+          <div class="tab-pane fade show active" id="pais" role="tabpanel">
 
             <div class="row mt-3">
               <div class="col-sm-10">

@@ -4,6 +4,7 @@
   import {apiFetch} from "@/services/http.js";
   import {onMounted, ref} from "vue";
   import {useRouter} from "vue-router";
+  import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
   const props = defineProps({
     aluno: Object
@@ -12,7 +13,8 @@
   const router = useRouter()
 
   const turmas = ref({})
-  const matricula = ref({aluno_id: props.aluno.id, turma_id: ''})
+  const matricula = ref({aluno_id: props.aluno.id, turma_id: '', responsavel:'', cpf:'', telefone:''})
+  const selecao = ref('1')
 
   onMounted(async () => {
 
@@ -24,6 +26,19 @@
     }
 
   })
+
+  function selecionarResponsavel(){
+    if(selecao.value === '1'){
+      matricula.value.responsavel = ''
+      matricula.value.cpf = ''
+    }else if(selecao.value === '2'){
+      matricula.value.responsavel = props.aluno.pai
+      matricula.value.cpf = props.aluno.cpf_pai
+    }else{
+      matricula.value.responsavel =  props.aluno.mae
+      matricula.value.cpf =  props.aluno.cpf_mae
+    }
+  }
 
   async function salvar() {
     try{
@@ -44,8 +59,6 @@
     }catch(error){
       alert(error.message)
     }
-
-
   }
 
 </script>
@@ -54,7 +67,8 @@
 
     <!-- Modal -->
   <div class="modal fade show d-block shadow-sm ">
-    <div class="modal-dialog ">
+
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
 
         <div class="modal-header">
@@ -76,6 +90,40 @@
               </div>
             </div>
 
+            <hr>
+            <h5>Dados do Responsável</h5>
+
+            <div class="row mt-3">
+              <div class="col-sm">
+                <label>ESCOLHA O RESPONSÁVEL</label>
+                <select class="form-select" @change="selecionarResponsavel" v-model="selecao">
+                  <option value="1">--</option>
+                  <option value="2">PAI</option>
+                  <option value="3">MÃE</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row mt-3">
+              <div class="col-sm">
+                <label for="responsavel">RESPONSÁVEL</label>
+                <input type="text" v-model="matricula.responsavel" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="row mt-3">
+              <div class="col-sm-4">
+                <label for="cpf">CPF D0 RESPONSAVEL</label>
+                <input v-mask="'###.###.###-##'" type="text" v-model="matricula.cpf" class="form-control" required>
+              </div>
+
+              <div class="col-sm-4">
+                <label for="telefone">TELEFONE D0 RESPONSAVEL</label>
+                <input v-mask="'(##) #####-####'" type="text" v-model="matricula.telefone" class="form-control" required>
+              </div>
+            </div>
+            <hr>
+            <h5>Dados da Matrícula</h5>
             <div class="row mt-3">
               <div class="col-sm">
                 <label for="turma">SELECIONE A TURMA</label>
