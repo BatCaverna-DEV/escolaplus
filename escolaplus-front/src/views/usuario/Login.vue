@@ -4,7 +4,6 @@
   import {useRouter, useRoute} from 'vue-router'
   import {apiFetch} from "@/services/http.js";
   import {setToken} from '@/services/auth.js'
-  import Navbar from "@/components/Navbar.vue";
   import {getUser} from "@/services/token.js";
 
   const router = useRouter()
