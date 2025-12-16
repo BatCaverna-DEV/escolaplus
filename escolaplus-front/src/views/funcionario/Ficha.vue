@@ -5,11 +5,13 @@
   import {useRoute} from "vue-router";
   import {categoriaFuncionario, statusPadrao} from "@/services/format.js";
   import {getUser} from "@/services/token.js";
+  import AlertMessage from "@/components/AlertMessage.vue";
 
   const route = useRoute();
   const funcionario = ref({});
   const salvando = ref(false);
   const user = getUser()
+  const erro = ref('')
 
 
   onMounted(async () => {
@@ -30,14 +32,17 @@
     try{
       salvando.value = true
       let resposta = await apiFetch('/usuario/acesso/'+funcionario.value.usuario_id)
+      const msg = await resposta.json();
       if(resposta.ok){
-        let msg = await resposta.json();
         await carregar()
         salvando.value = false
-        alert(msg.message);
+        erro.value = msg.message;
+      }else{
+        salvando.value = false
+        erro.value = msg.message;
       }
     }catch(err){
-      alert(err.message);
+      erro.value = msg.message;
     }
   }
 
@@ -78,6 +83,12 @@
         </div>
       </div>
     </div>
+
+    <AlertMessage
+        v-if="erro"
+        :msg="erro"
+        tipo="warning"
+    />
 
     <div class="shadow p-3">
       <div class="row">

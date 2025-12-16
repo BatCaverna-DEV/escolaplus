@@ -4,7 +4,6 @@
   import {apiFetch} from "@/services/http.js";
   import {dataBrasil} from "@/services/format.js";
   import {statusAluno} from "@/services/format.js";
-  import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
   const alunos = ref([])
   const buscar = ref('')
@@ -47,7 +46,7 @@
           <RouterLink class="btn btn-outline-primary mx-1" to="/aluno/cadastrar">
             <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon> Novo
           </RouterLink>
-          <RouterLink class="btn btn-outline-secondary mx-1" href="/">
+          <RouterLink class="btn btn-outline-secondary mx-1" to="/">
             <font-awesome-icon icon="fa-solid fa-caret-left"/>Voltar
           </RouterLink>
         </span>

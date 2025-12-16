@@ -6,12 +6,12 @@ import {apiFetch} from "@/services/http.js";
 import {categoriaFuncionario} from "@/services/format.js";
 import {useRoute} from "vue-router";
 
-const playload = getUser();
+const usuario = getUser();
 const perfil = ref({})
 const route = useRoute();
 
 onMounted(async () => {
-  let resposta = await apiFetch('/funcionario/get/' + playload.funcionario_id);
+  let resposta = await apiFetch('/funcionario/get/' + usuario.funcionario_id);
   perfil.value = await resposta.json();
 })
 

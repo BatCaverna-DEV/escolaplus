@@ -23,7 +23,7 @@ async function salvar(){
     foto: funcionario.value.foto,
   }
   const resposta = await apiFetch('/funcionario/editar',{
-    method: 'POST',
+    method: 'PUT',
     body: dados,
   })
   if(resposta.ok){
