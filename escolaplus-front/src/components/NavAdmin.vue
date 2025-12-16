@@ -1,17 +1,9 @@
 <script setup>
 import { RouterLink } from "vue-router";
-import {onMounted, ref} from "vue";
+import {ref} from "vue";
 import {getUser} from "@/services/token.js";
-import {apiFetch} from "@/services/http.js";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
-const playload = getUser();
-const perfil = ref({});
-
-onMounted(async () => {
-  let resposta = await apiFetch('/funcionario/get/'+playload.funcionario_id);
-  perfil.value = await resposta.json();
-})
+const usuario = ref(getUser());
 
 </script>
 
@@ -25,14 +17,14 @@ onMounted(async () => {
         </a>
         <div class="">
 
-          <div class="dropdown" v-if="playload">
+          <div class="dropdown" v-if="usuario">
             <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               <font-awesome-icon icon="fa-solid fa-circle-user"></font-awesome-icon>
-<!--              {{user.username}}-->
+              {{usuario.nome.split(' ')[0]}}
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
               <li>
-                <RouterLink class="dropdown-item" :to="'/funcionario/ficha/'+playload.funcionario_id">
+                <RouterLink class="dropdown-item" :to="'/funcionario/ficha/'+usuario.funcionario_id">
                   <font-awesome-icon icon="fa-solid fa-address-card"></font-awesome-icon> Meus Dados
                 </RouterLink>
               </li>

@@ -7,11 +7,13 @@ export const allow = (...tiposPermitidos) => {
 
         // garante comparação numérica
         const tipo = Number(req.categoria);
-
+        console.log('TIPO: '+tipo);
+        console.log(tiposPermitidos);
         if (!tiposPermitidos.includes(tipo)) {
-            return res.status(403).json({ message: "Você não tem permissão para acessar essa funcionalidade!" });
+            console.log('Não permitido!')
+            return res.status(401).json({ message: "Você não tem permissão para acessar essa funcionalidade!" });
         }
-
+        console.log('Chegou ao final!')
         next();
     };
 };
