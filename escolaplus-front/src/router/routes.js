@@ -27,6 +27,8 @@ import UsuarioSenha from '@/views/usuario/Senha.vue'
 import Foto from "@/views/admin/Foto.vue";
 import Editar from "@/views/funcionario/Editar.vue";
 import Imprimir from "@/views/aluno/Imprimir.vue";
+//CALENDÁRIO
+import CalendarioPrincipal from "@/views/calendario/Principal.vue"
 
 const RouterViewOnly = {
     render(){
@@ -88,6 +90,18 @@ const router = createRouter({
                   path: "imprimir/:id",
                   name: "imprimir",
                   component: AlunoImprimir,
+              }
+          ]
+      },
+      {
+          path: '/calendario',
+          component: RouterViewOnly,
+          meta: {group:'calendario', requiresAuth: true},
+          children: [
+              {
+                  path: 'principal',
+                  name: 'calendario.principal',
+                  component: CalendarioPrincipal
               }
           ]
       },

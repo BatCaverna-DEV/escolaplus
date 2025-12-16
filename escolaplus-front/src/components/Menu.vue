@@ -75,7 +75,7 @@ onMounted(async () => {
           <RouterLink
               to="/funcionario/principal"
               class="nav-link text-black"
-              :class="{ active: route.path.startsWith('/funcionario') && !route.path.startsWith('/funcionario/ficha') }"
+              :class="{ active: route.path.startsWith('/funcionario') }"
           >
             <font-awesome-icon icon="fa-solid fa-user-tie"/>
             Funcionários
@@ -83,10 +83,14 @@ onMounted(async () => {
         </li>
 
         <li class="nav-item border-bottom py-1">
-          <a href="/letivos/index" class="nav-link text-black">
-            <font-awesome-icon icon="fa-solid fa-calendar-days"></font-awesome-icon>
+          <RouterLink
+              to="/calendario/principal"
+              class="nav-link text-black"
+              :class="{ active: route.path.startsWith('/calendario') }"
+          >
+            <font-awesome-icon icon="fa-solid fa-calendar-days"/>
             Ano Letivo
-          </a>
+          </RouterLink>
         </li>
 
         <li class="nav-item border-bottom py-1">
