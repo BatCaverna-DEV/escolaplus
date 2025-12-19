@@ -20,6 +20,9 @@
     const resposta = await apiFetch('/aluno/listar')
     if(resposta.ok){
       alunos.value = await resposta.json()
+    }else{
+      const msg = resposta.json()
+      alert(resposta.status+' - '+msg.message)
     }
   }
 

@@ -38,7 +38,8 @@ class AlunoController {
                     as: 'usuario'
                 },{
                     model: Matricula,
-                    as: 'matriculas'
+                    as: 'matriculas',
+                    required: false
                 }],
                 order:[['nome','ASC']]
             })
