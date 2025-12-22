@@ -77,6 +77,7 @@ import {ref, onBeforeUnmount, computed, onMounted} from 'vue'
       let resposta = await apiFetch('/aluno/get/'+id)
       if(resposta.ok){
         const dados = await resposta.json()
+        aluno.value.id = dados.id
         aluno.value.nome = dados.nome
         aluno.value.matricula = dados.matricula
         aluno.value.cep = dados.cep
@@ -115,7 +116,7 @@ import {ref, onBeforeUnmount, computed, onMounted} from 'vue'
       <h3><i class="fas fa-user-graduate"></i>Editar Dados de Aluno - {{aluno.nome}}</h3>
       <ul class="nav justify-content-end">
         <li class="nav-item">
-          <RouterLink to="/aluno/principal" class="btn btn-outline-secondary">
+          <RouterLink :to="`/aluno/ficha/${aluno.id}`" class="btn btn-outline-secondary">
             <font-awesome-icon icon="fa-solid fa-caret-left"/>Voltar
           </RouterLink>
         </li>
