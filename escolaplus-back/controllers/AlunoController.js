@@ -7,6 +7,7 @@ import Nota from '../models/Nota.js'
 import {semfoto} from "../helpers/foto.js";
 import {gerarMatricula} from "../helpers/matricula.js";
 import Matricula from "../models/Matricula.js";
+import {Op} from "sequelize";
 
 
 class AlunoController {
@@ -32,7 +33,15 @@ class AlunoController {
 
     listar = async function (req, res) {
         try{
+            const busca = req.params.busca
+
+            // Configurar filtro de busca
+            const whereClause = busca && busca !== 'todos'
+                ? { nome: { [Op.like]: `%${busca}%` } }
+                : {};
+
             const alunos = await Aluno.findAll({
+                where: whereClause,
                 include:[{
                     model: Usuario,
                     as: 'usuario'

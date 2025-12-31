@@ -8,33 +8,28 @@
   const alunos = ref([])
   const buscar = ref('')
   const status = ref('0')
-  const carregando = ref(true)
+  const carregando = ref(false)
 
   onMounted(async () => {
-    carregando.value = true
-    await listar()
-    carregando.value = false
+    // carregando.value = true
+    // await listar()
+    // carregando.value = false
   })
 
   async function listar(){
-    const resposta = await apiFetch('/aluno/listar')
-    if(resposta.ok){
-      alunos.value = await resposta.json()
-    }else{
-      const msg = resposta.json()
-      alert(resposta.status+' - '+msg.message)
-    }
-  }
-
-  function filtrar(){
-    var lista = alunos.value;
-    if(buscar.value.length > 0){
-      lista = alunos.value.filter(aluno => aluno.nome.toLowerCase().includes(buscar.value.toLowerCase()));
-    }
-    if(status.value == '1'){
-      return lista.filter(aluno => aluno.status == 1)
-    }else{
-      return lista
+    try{
+      carregando.value = true
+      const resposta = await apiFetch('/aluno/listar/'+buscar.value)
+      if(resposta.ok){
+        alunos.value = await resposta.json()
+        carregando.value = false
+      }else{
+        const msg = resposta.json()
+        alert(resposta.status + ' - '+msg.message)
+        carregando.value = false
+      }
+    }catch(error){
+      alert(error.message)
     }
   }
 
@@ -56,20 +51,13 @@
       </div>
     </nav>
 
-    <form >
+    <form @submit.prevent="listar">
       <fieldset>
         <legend>Filtro</legend>
         <div class="row">
           <div class="col-sm-8">
             <label for="nome">Nome do Aluno</label>
             <input v-model="buscar" type="text" id="nome" placeholder="Nome do aluno" class="form-control">
-          </div>
-          <div class="col-sm-4">
-            <label for="">STATUS</label>
-            <select id="status" class="form-select" v-model="status">
-              <option value="0">Todos</option>
-              <option value="1">Matriculados</option>
-            </select>
           </div>
         </div>
       </fieldset>
@@ -85,14 +73,14 @@
       </div>
     </div>
 
-    <div class="row my-2" v-if="!carregando">
+    <div class="row my-2" v-if="!carregando && alunos.length > 0">
       <div class="col-sm-1"></div>
       <div class="col-sm-8"><strong>DADOS PRINCIPAIS</strong></div>
       <div class="col-sm-2"><strong>STATUS</strong></div>
       <div class="col-sm-1"><strong></strong></div>
     </div>
 
-    <div class="row mt-1 rounded rounded-1 p-1 bg-body-tertiary" v-if="!carregando" v-for="aluno in filtrar()">
+    <div class="row mt-1 rounded rounded-1 p-1 bg-body-tertiary" v-if="!carregando" v-for="aluno in alunos">
 
       <div class="col-sm-1 pt-1">
         <img :src="aluno.foto" width="50px" class="rounded rounded-1">
