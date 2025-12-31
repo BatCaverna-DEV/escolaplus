@@ -34,20 +34,19 @@ import {ref, onBeforeUnmount, computed, onMounted} from 'vue'
     hospital:'',
     sozinho:'',
     alergia:'',
-    redes:'',
-    foto:null,
+    redes:''
   })
 
   async function salvar(){
     erro.value = ''
     try{
-      const resposta = await apiFetch('/aluno/salvar', {
-        method: 'POST',
+      const resposta = await apiFetch('/aluno/editar', {
+        method: 'PUT',
         body: aluno.value
       })
       if(resposta.ok){
         const aluno = await resposta.json()
-        alert(aluno.message)
+        alert('Aluno editado com sucesso!')
         router.push('/aluno/ficha/'+aluno.id)
       }else{
         const msg = await resposta.json()
