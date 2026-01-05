@@ -70,6 +70,10 @@ const Aluno = banco.sequelize.define('alunos', {
         type: banco.Sequelize.STRING(15)
     },
 
+    email:{
+        type: banco.Sequelize.STRING(100)
+    },
+
     obs: {
         type: banco.Sequelize.TEXT
     },
