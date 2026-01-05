@@ -1,9 +1,13 @@
 import puppeteer from "puppeteer";
 import Aluno from '../models/Aluno.js'
+import Escola from '../models/Escola.js'
+import {dataBrasil} from "../helpers/format.js";
 
 class ImpressaoController {
 
     ficha = async function (req, res) {
+        const escola = await Escola.findOne()
+
         let browser;
         try {
             let id = req.params.id;
@@ -81,12 +85,16 @@ class ImpressaoController {
             <body>
                 <main class="">
                     <header class="header">
-                        <div class="logoBox" aria-label="Logo"></div>
+                        <div class="logoBox" aria-label="Logo">
+                        <img src="${escola.logo}" style="width: 100%; border-radius: 3px;">  
+                        </div>
             
                     <div class="headerText">
-                        <div class="org">Colégio Espaço Educar</div>
-                        <div class="dept">Rua Vereador Joel Loureiro - Teresina PI</div>
-                        <div class="dept">Teresina - PI</div>
+                        <div class="org">${escola.nome}</div>
+                        <div class="dept">${escola.endereco} - ${escola.bairro} </div>
+                        <div class="dept">${escola.cidade} - ${escola.estado}</div>
+                        <div class="dept">EMAIL: ${escola.email}</div>
+                        <div class="dept">TELEFONE: ${escola.telefone}</div>
                     </div>
                     </header>
             
@@ -99,7 +107,7 @@ class ImpressaoController {
                                 </div>
                                 <div style="width: 20%;">
                                     <label style="display: block;" for="nascimento">NASCIMENTO</label>
-                                    <input style="width: 98%;" type="text" value="${aluno.nascimento}" id="nascimento">
+                                    <input style="width: 98%;" type="text" value="${dataBrasil(aluno.nascimento)}" id="nascimento">
                                 </div>
                             </div>
                             <div style="display: flex; margin-top: 15px;">

@@ -7,7 +7,7 @@
   "scripts": {
     "start": "nodemon index.js",
     "test": "Teste do Sistema",
-    "gerar": "node ./helpers/db.js"
+    "db": "node ./helpers/db.js"
   },
   "author": "Bruno Vicente",
   "license": "ISC",
