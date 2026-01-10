@@ -31,6 +31,34 @@ class AlunoController {
         }
     }//Fim do salvar
 
+    buscar = async function (req, res) {
+        try{
+
+            const busca = req.body
+            console.log(busca)
+            const alunos = await Aluno.findAll({
+                where: {
+                    nome: { [Op.like]: `%${busca.chave}%` },
+                    status: busca.status
+                },
+                include:[{
+                    model: Usuario,
+                    as: 'usuario',
+                    required: false,
+                },{
+                    model: Matricula,
+                    as: 'matriculas',
+                    required: false
+                }],
+                order:[['nome','ASC']]
+            })
+            console.log('Buscou Alunos');
+            return res.status(200).json(alunos)
+        }catch(err){
+            return res.status(500).send(err);
+        }
+    }
+
     listar = async function (req, res) {
         try{
             const busca = req.params.busca

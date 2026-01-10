@@ -11,10 +11,28 @@
   const carregando = ref(false)
 
   onMounted(async () => {
-    // carregando.value = true
-    // await listar()
-    // carregando.value = false
+    carregando.value = true
+    await inicializacao()
+    carregando.value = false
   })
+
+  async function inicializacao(){
+    try{
+      carregando.value = true
+      const resposta = await apiFetch('/aluno/buscar', {
+        method: 'POST',
+        body: {
+          chave: '',
+          status: 1
+        }
+      })
+      if(resposta.status == 200){
+        alunos.value = await resposta.json()
+      }
+    }catch(error){
+      alert(error.message)
+    }
+  }
 
   async function listar(){
     try{
@@ -58,6 +76,13 @@
           <div class="col-sm-8">
             <label for="nome">Nome do Aluno</label>
             <input v-model="buscar" type="text" id="nome" placeholder="Nome do aluno" class="form-control">
+          </div>
+          <div class="col-sm-2">
+            <label for="status">STATUS</label>
+            <select name="" id="" class="form-select">
+              <option value="1">Matriculados</option>
+              <option value="0">Não Matriculados</option>
+            </select>
           </div>
         </div>
       </fieldset>

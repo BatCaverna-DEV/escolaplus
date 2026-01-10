@@ -4,7 +4,6 @@ import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken'
 import {enviarMensagem, mascararEmail} from "../helpers/email.js";
 import dotenv from 'dotenv'
-import usuario from "../models/Usuario.js";
 dotenv.config();
 
 const secret = process.env.JWT_SECRET
