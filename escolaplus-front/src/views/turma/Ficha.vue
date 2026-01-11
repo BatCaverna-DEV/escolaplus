@@ -132,7 +132,7 @@ onMounted(async() => {
           <div class="col-sm-4">{{matricula.aluno.nome}}</div>
           <div class="col-sm-3">{{dataBrasil(matricula.aluno.nascimento)}}</div>
 
-          <div class="col-sm-1 text-center d-flex justify-content-end">
+          <div class="col-sm-1 text-center">
             <RouterLink target="_blank" :to="'/aluno/ficha/'+matricula.aluno.id" class="btn btn-sm btn-outline-secondary text-decoration-none float-end">
               <font-awesome-icon icon="fa-solid fa-eye"></font-awesome-icon>
             </RouterLink>
