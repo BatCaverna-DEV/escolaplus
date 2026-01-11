@@ -2,6 +2,9 @@ import puppeteer from "puppeteer";
 import Aluno from '../models/Aluno.js'
 import Escola from '../models/Escola.js'
 import {dataBrasil} from "../helpers/format.js";
+import Matricula from "../models/Matricula.js";
+import Turma from "../models/Turma.js"
+import Calendario from "../models/Calendario.js"
 
 class ImpressaoController {
 
@@ -12,11 +15,24 @@ class ImpressaoController {
         try {
             let id = req.params.id;
             const aluno = await Aluno.findByPk(id)
+            const matricula = await Matricula.findOne({
+                where: {
+                    aluno_id: id
+                },
+                include: {
+                    model: Turma,
+                    as: 'turma'
+                }
+            })
+            const calendario = await Calendario.findOne({
+                where: {
+                    status: 1
+                }
+            })
             browser = await puppeteer.launch({
                 args: ['--no-sandbox', '--disable-setuid-sandbox'],
             })
             const page = await browser.newPage();
-            const nome = 'Bruno Vicente'
             const html = `
             <!DOCTYPE html>
             <html lang="pt-br">
@@ -80,10 +96,14 @@ class ImpressaoController {
                         border-radius: 4px;
                         border: #111 1px solid;
                     }
+                    
+                    .page{
+                        page-break-after: always;
+                    }
                 </style>
             </head>
             <body>
-                <main class="">
+                <main >
                     <header class="header">
                         <div class="logoBox" aria-label="Logo">
                         <img src="${escola.logo}" style="width: 100%; border-radius: 3px;">  
@@ -215,6 +235,74 @@ class ImpressaoController {
                         ${aluno.obs}
                     </textarea>
             
+                </main>
+                <br><br>
+                <main>
+                    <h5 style="text-align: center;">CONTRATO DE PRESTAÇÃO DE SERVIÇOS</h5>
+                    <p style="text-align: justify;">
+                        Eu, <strong>${matricula.responsavel}</strong> responsável pela matrícula do (a) <strong>${aluno.nome}</strong> no 
+                        <strong>${matricula.turma.descricao}</strong> no ano de <strong>${calendario.ano}</strong>.
+                    </p>
+                    <p style="text-align: justify;">
+                        Sou ciente de que a escolha de escola privada é opção e resulta na obrigação de pagar
+                        as mensalidades escolares para recebimentos dos serviços educacionais. Declaro aceitar
+                        os itens abaixo:                    
+                    </p>
+                    
+                    <ol type="I">
+                        <li style="text-align: justify;">
+                            Conhecer e acatar as normas da escola, valor da mensalidade, que poderá ser paga até o dia 05 do mês
+                            subsequente ao vencimento sem multa e juros;
+                        </li>  
+                        <li style="text-align: justify;">
+                            Não ser efetivada a matrícula se houver débito relativo à mensalidade do ano letivo anterior ao
+                            proposto;
+                        </li>  
+                        <li style="text-align: justify;">
+                           Não ser efetivada a matrícula se o (a) aluno (a) não satisfazer as exigências da legislação de ensino;                         
+                        </li>      
+                        <li style="text-align: justify;">
+                             Estar informado (a) de que o atraso de pagamento de cada parcela acarretará o acréscimo de multa,
+juros e atualização monetária, conforme a legislação em vigor;                       
+                        </li>          
+                        <li style="text-align: justify;">
+                            Quando ocorrer a desistência o responsável pela matrícula do (a) aluno (a) deverá procurar
+imediatamente a direção;
+                        </li >
+                        <li style="text-align: justify;">
+                            Ao solicitar o cancelamento da matrícula o responsável deverá estar com as mensalidades em dia até a
+data do ocorrido;
+                        </li>
+                        <li style="text-align: justify;">
+                            O responsável pela matrícula que optar pela desistência não poderá requerer devolução da matrícula;
+                        </li>
+                        <li style="text-align: justify;">
+                            Caso não haja uma comunicação formal da rescisão deste contrato À direção acarretará no
+inadimplemento perante esta empresa a qual poderá usar de cobrança judicial e inclusão do responsável
+no SERASA.
+                        </li>
+                        <li style="text-align: justify;">
+                            A partir de três parcelas em atraso implica, a critério da escola, em negativação do nome do
+responsável pela matrícula em serviço de proteção de crédito, protesto da dívida e/ou cobrança judicial
+                        </li>
+                        <li>
+                            Reconhecer como prestado o serviço educacional, se não possuir documento comprobatório de
+desligamento, transferência ou cancelamento de matrícula do(a) aluno(a) referente ao período,
+conforme o contrato;
+                        </li>
+                        <li style="text-align: justify;">
+                            Serem verdadeiras e sujeitas À comprovação por documento, se exigidos, as informações prestadas no
+verso deste.
+                        </li>
+                        <li style="text-align: justify;">
+                            Autorizamos a divulgação da imagem da criança/adolescente quando for referente a escola.
+                        </li>
+                    </ol>
+                    <br><br><br>
+                    <p style="text-align: center;">_____________________________________________ <br>
+                    ${matricula.responsavel}<br>
+                    CPF: ${matricula.cpf}
+                    </p>
                 </main>
                 
             
