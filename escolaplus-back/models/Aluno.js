@@ -94,7 +94,7 @@ const Aluno = banco.sequelize.define('alunos', {
         type: banco.Sequelize.STRING(20),
     },
     status: {
-        type: banco.Sequelize.STRING(45)
+        type: banco.Sequelize.INTEGER,
     },
 
     foto: {
