@@ -15,6 +15,8 @@ import AlunoImprimir  from '@/views/aluno/Imprimir.vue'
 //TURMA
 import TurmaPrincipal from '@/views/turma/Principal.vue'
 import TurmaFicha from '@/views/turma/Ficha.vue'
+//DIARIO
+import DiarioFicha from '@/views/diario/Ficha.vue'
 //FUNCIONÁRIO
 import FuncionarioPrincipal from '@/views/funcionario/Principal.vue'
 import FuncionarioFicha from '@/views/funcionario/Ficha.vue'
@@ -131,6 +133,18 @@ const router = createRouter({
                   path: 'ficha/:id',
                   name: 'ficha',
                   component: TurmaFicha,
+              }
+          ]
+      },
+      {
+          path: '/diario',
+          component: RouterViewOnly,
+          meta: {group:'diario', requiresAuth: true},
+          children: [
+              {
+                  path:'ficha/:id',
+                  name: 'diario.ficha',
+                  component: DiarioFicha,
               }
           ]
       },

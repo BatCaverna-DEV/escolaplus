@@ -28,6 +28,8 @@
       })
       if(resposta.status == 200){
         alunos.value = await resposta.json()
+      }else{
+        alert(resposta.message)
       }
     }catch(error){
       alert(error.message)
@@ -37,6 +39,7 @@
   async function listar(){
     try{
       carregando.value = true
+      console.log('Buscar: '+buscar.value)
       const resposta = await apiFetch('/aluno/listar/'+buscar.value)
       if(resposta.ok){
         alunos.value = await resposta.json()

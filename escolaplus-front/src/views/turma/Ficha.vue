@@ -12,7 +12,11 @@ const diarios = ref([])
 const matriculas = ref([])
 const id = route.params.id;
 
+const carregando = ref(false)
+
 onMounted(async() => {
+
+  carregando.value = true
   const resposta = await apiFetch(`/turma/get/${id}`);
   turma.value = await resposta.json();
 
@@ -21,6 +25,8 @@ onMounted(async() => {
 
   const resposta3 = await apiFetch(`/turma/matriculas/${id}`);
   matriculas.value = await resposta3.json()
+
+  carregando.value = false
 })
 
 </script>
@@ -90,7 +96,18 @@ onMounted(async() => {
 
     <!--CONTEÚDO DAS ABAS -->
     <div class="tab-content mt-3" id="myTabContent">
-      <div class="tab-pane fade show active" id="diarios" role="tabpanel">
+
+      <!-- Aviso de carregamento -->
+      <div class="container-fluid mt-3" v-if="carregando">
+        <h5 class="text-success text-center">Carregando turmas...</h5>
+        <div class="d-flex justify-content-center">
+          <div class="spinner-border text-success" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade show active" id="diarios" role="tabpanel" v-if="!carregando">
 
         <div class="row my-3 p-1">
           <div class="col-sm-4 fw-bolder">DESCRIÇÃO</div>
@@ -105,7 +122,7 @@ onMounted(async() => {
           <div class="col-sm-3">{{diario.turma.descricao}}</div>
 
           <div class="col-sm-1 text-center d-flex justify-content-end">
-            <RouterLink :to="'/turma/ficha/'+turma.id" class="btn btn-sm btn-outline-secondary text-decoration-none float-end">
+            <RouterLink :to="'/diario/ficha/'+diario.id" class="btn btn-sm btn-outline-secondary text-decoration-none float-end">
               <font-awesome-icon icon="fa-solid fa-eye"></font-awesome-icon>
             </RouterLink>
           </div>
@@ -115,6 +132,16 @@ onMounted(async() => {
       </div> <!-- FIM DIV DIÁRIOS -->
 
       <div class="tab-pane fade" id="matriculas" role="tabpanel">
+
+        <!-- Aviso de carregamento -->
+        <div class="container-fluid mt-3" v-if="carregando">
+          <h5 class="text-success text-center">Carregando alunos matriculados na turma...</h5>
+          <div class="d-flex justify-content-center">
+            <div class="spinner-border text-success" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
 
         <div class="row my-3 p-1">
           <div class="col-sm-2"></div>

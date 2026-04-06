@@ -102,6 +102,9 @@ const Aluno = banco.sequelize.define('alunos', {
     },
     codigoantigo:{
         type: banco.Sequelize.INTEGER,
+    },
+    matriculaantiga:{
+        type: banco.Sequelize.STRING(30),
     }
 
 })

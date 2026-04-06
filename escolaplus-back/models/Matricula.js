@@ -10,7 +10,6 @@ const Matricula = banco.sequelize.define('matriculas', {
     },
     matricula:{
         type: banco.Sequelize.STRING(20),
-        unique: true,
         allowNull: false
     },
     responsavel: {
