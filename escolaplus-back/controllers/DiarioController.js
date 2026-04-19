@@ -18,14 +18,16 @@ class DiarioController {
                     },
                     {
                         model: Funcionario,
-                        as: 'funcionario',
+                        as: 'professor',
                     }]
             })
             if(!diario){
                 return res.status(404).send('Diario não encontrado')
             }
+            console.log(diario)
             return res.status(200).json(diario)
         }catch(err){
+            console.log(err)
             return res.status(400).send(err)
         }
     }//fim do get
