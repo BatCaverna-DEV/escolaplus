@@ -13,8 +13,9 @@ const auth = (req, res, next) => {
     try{
         const decoded = jwt.verify(token.replace('Bearer ', ''), secret)
 
-        req.userId = decoded.id
-        req.categoria = decoded.categoria;
+        req.userId       = decoded.usuario_id
+        req.funcionarioId = decoded.funcionario_id
+        req.categoria    = decoded.categoria;
         next()
     }catch(err){
         return res.status(401).json({message:"Erro: "+err});

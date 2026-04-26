@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { apiFetch } from "@/services/http.js";
 import { setToken } from '@/services/auth.js'
+import { getUser } from '@/services/token.js'
 
 const router = useRouter()
 const route  = useRoute()
@@ -23,7 +24,9 @@ async function login() {
     const token = await resposta.json()
     if (resposta.ok) {
       setToken(token.value)
-      router.replace(route.query.redirect ?? '/')
+      const user = getUser()
+      const destino = route.query.redirect ?? (Number(user?.categoria) === 2 ? '/professor/principal' : '/')
+      router.replace(destino)
     } else {
       erro.value = token.message
     }

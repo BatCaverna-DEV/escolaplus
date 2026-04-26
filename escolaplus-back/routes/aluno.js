@@ -2,13 +2,19 @@ import express from 'express';
 const router = express.Router();
 import auth from '../helpers/auth.js'
 import Aluno from '../controllers/AlunoController.js';
-import {allow, categoria} from "../helpers/permissao.js";
+import { allow, categoria } from "../helpers/permissao.js";
 
-router.post('/salvar', auth, allow(categoria.ADMIN, categoria.SECRETARIA),Aluno.salvar)
-router.get('/listar/:busca', auth, allow(categoria.ADMIN, categoria.SECRETARIA), Aluno.listar);
-router.post('/buscar', auth, allow(categoria.ADMIN, categoria.SECRETARIA), Aluno.buscar);
-router.get('/get/:id', auth, allow(categoria.ADMIN, categoria.SECRETARIA, categoria.PROFESSOR), Aluno.get);
-router.post('/matricular', auth, allow(categoria.ADMIN, categoria.SECRETARIA), Aluno.matricular);
-router.put('/editar', auth, allow(categoria.ADMIN, categoria.SECRETARIA),Aluno.editar);
+const sec  = [categoria.SECRETARIA]
+const prof = [categoria.SECRETARIA, categoria.PROFESSOR]
+
+router.post('/salvar',       auth, allow(...sec),  Aluno.salvar)
+router.get ('/listar/:busca',auth, allow(...sec),  Aluno.listar)
+router.post('/buscar',       auth, allow(...sec),  Aluno.buscar)
+router.get ('/get/:id',      auth, allow(...prof), Aluno.get)
+router.post('/matricular',   auth, allow(...sec),  Aluno.matricular)
+router.put ('/editar',       auth, allow(...sec),  Aluno.editar)
+
+// Aluno autenticado consulta o próprio perfil
+router.get('/eu', auth, allow(categoria.ALUNO), Aluno.eu)
 
 export default router

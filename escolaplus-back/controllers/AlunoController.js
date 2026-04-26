@@ -150,36 +150,38 @@ class AlunoController {
 
         //Gerar as notas dos diários
         for(const diario of diarios){
-            let cont = 1
+            let cont  = 1
+            let ordem = 1
             for(let i = 0; i < calendario.etapas; i++){
                 for(let j = 0; j < calendario.notas; j++){
-                    let n = {
+                    await Nota.create({
                         descricao: 'N'+cont,
                         matricula_id: matricula.id,
                         diario_id: diario.id,
-                        semestre: i+1
-                    }
+                        semestre: i+1,
+                        ordem: ordem++,
+                    })
                     cont++
-                    await Nota.create(n)
                 }//Fim do for das notas
 
                 //Cria as Recuperações
-                let rec = {
+                await Nota.create({
                     descricao: 'Rec'+(i+1),
                     matricula_id: matricula.id,
                     diario_id: diario.id,
-                    semestre: i+1
-                }
-                await Nota.create(rec)
+                    semestre: i+1,
+                    ordem: ordem++,
+                })
             }//Fim do for das etapas
+
             //Cria a Prova Final
-            let final = {
+            await Nota.create({
                 descricao: 'Final',
                 matricula_id: matricula.id,
                 diario_id: diario.id,
                 semestre: calendario.etapas,
-            }
-            await Nota.create(final)
+                ordem: ordem++,
+            })
         }//fim do for do diário
 
         return res.status(200).json({message:"Aluno matriculado com sucesso!", id:matricula.aluno_id})
@@ -197,6 +199,26 @@ class AlunoController {
             return res.status(200).json(aluno_alterado)
         }catch(err){
             return res.status(400).json(err);
+        }
+    }
+
+    // GET /aluno/eu — aluno autenticado consulta o próprio perfil
+    eu = async (req, res) => {
+        const { userId } = req
+        try {
+            const aluno = await Aluno.findOne({
+                where: { usuario_id: userId },
+                include: [{
+                    model: Matricula,
+                    as: 'matriculas',
+                    required: false,
+                    include: [{ model: Turma, as: 'turma' }]
+                }]
+            })
+            if (!aluno) return res.status(404).json({ message: 'Aluno não encontrado' })
+            return res.status(200).json(aluno)
+        } catch(err) {
+            return res.status(400).json({ message: err.message })
         }
     }
 

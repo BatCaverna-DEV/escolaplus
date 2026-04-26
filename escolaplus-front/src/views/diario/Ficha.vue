@@ -4,6 +4,10 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { statusPadrao } from "@/services/format.js";
 import AlertMessage from "@/components/AlertMessage.vue";
+import { getUser } from "@/services/token.js";
+
+const usuario      = getUser()
+const ehSecretaria = Number(usuario?.categoria) === 1
 
 const route = useRoute();
 const id    = route.params.id;
@@ -83,13 +87,21 @@ async function carregarNotas() {
 
 // Salva ao tirar foco do campo de valor
 async function onBlurNota(nota) {
-  const novo = parsearNota(nota._display)
-  if (novo === null || isNaN(novo) || novo < 0 || novo > 10) {
-    nota._display = formatarNota(nota.valor)   // reverte para valor anterior
+  const vazio = nota._display === '' || nota._display === null || nota._display === undefined
+  const novo  = vazio ? null : parsearNota(nota._display)
+
+  // Valor inválido (não vazio, mas fora do intervalo 0–10)
+  if (!vazio && (isNaN(novo) || novo < 0 || novo > 10)) {
+    nota._display = formatarNota(nota.valor)
     return
   }
-  if (novo === parseFloat(nota.valor)) {
-    nota._display = formatarNota(nota.valor)   // garante formato mesmo sem alteração
+
+  // Sem alteração
+  const semMudanca = vazio
+    ? (nota.valor === null || nota.valor === '')
+    : novo === parseFloat(nota.valor)
+  if (semMudanca) {
+    nota._display = formatarNota(nota.valor)
     return
   }
 
@@ -162,12 +174,12 @@ onMounted(async () => {
           <p class="text-muted small mb-0">{{ diario.turma?.descricao }}</p>
         </div>
         <div class="page-actions">
-          <template v-if="!editando">
+          <template v-if="ehSecretaria && !editando">
             <button class="btn btn-sm btn-primary" @click="iniciarEdicao">
               <font-awesome-icon icon="fa-solid fa-pen-to-square" class="me-1" />Editar
             </button>
           </template>
-          <template v-else>
+          <template v-else-if="ehSecretaria && editando">
             <button class="btn btn-sm btn-success" @click="salvarDiario" :disabled="salvandoDiario">
               <span v-if="salvandoDiario">
                 <span class="spinner-border spinner-border-sm me-1"></span>Salvando…

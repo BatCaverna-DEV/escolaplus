@@ -95,17 +95,37 @@ class FuncionarioController {
         }
     }
 
+    // PUT /editar — professor só pode editar o próprio registro
     editar = async function (req, res) {
         const id = req.body.id;
+        const { funcionarioId, categoria: cat } = req
         try{
-            const funcionario = await Funcionario.findOne({
-                where: {id: id},
-            })
-            const dados = req.body
-            const funcionario_alterado = await funcionario.update(dados)
+            if (Number(cat) === 2) { // PROFESSOR
+                if (funcionarioId !== id) {
+                    return res.status(403).json({ message: 'Você só pode editar seu próprio cadastro' })
+                }
+            }
+            const funcionario = await Funcionario.findOne({ where: { id } })
+            if (!funcionario) return res.status(404).json({ message: 'Funcionário não encontrado' })
+            const funcionario_alterado = await funcionario.update(req.body)
             return res.status(200).json(funcionario_alterado)
         }catch(err){
             return res.status(400).json(err);
+        }
+    }
+
+    // GET /funcionario/eu — professor autenticado consulta o próprio perfil
+    eu = async (req, res) => {
+        const { userId } = req
+        try {
+            const funcionario = await Funcionario.findOne({
+                where: { usuario_id: userId },
+                include: [{ model: Usuario, as: 'usuario' }]
+            })
+            if (!funcionario) return res.status(404).json({ message: 'Funcionário não encontrado' })
+            return res.status(200).json(funcionario)
+        } catch(err) {
+            return res.status(400).json({ message: err.message })
         }
     }
 
