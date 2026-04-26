@@ -22,6 +22,11 @@ const Nota = banco.sequelize.define('notas', {
         type: banco.Sequelize.INTEGER,
     },
 
+    ordem:{
+        type: banco.Sequelize.INTEGER,
+        defaultValue: 0,
+    },
+
 })
 
 Nota.belongsTo(Matricula, {

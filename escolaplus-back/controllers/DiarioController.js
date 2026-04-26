@@ -79,7 +79,7 @@ class DiarioController {
                     include: [{ model: Aluno, as: 'aluno' }],
                 })
                 if (!matricula) return res.status(403).json({ message: 'Você não está matriculado nesta turma' })
-                const notas = await Nota.findAll({ where: { diario_id, matricula_id: matricula.id } })
+                const notas = await Nota.findAll({ where: { diario_id, matricula_id: matricula.id }, order: [['ordem', 'ASC']] })
                 return res.status(200).json([{ ...matricula.toJSON(), notas }])
             }
 
@@ -89,7 +89,7 @@ class DiarioController {
                     include: [{ model: Aluno, as: 'aluno' }],
                     order: [[{ model: Aluno, as: 'aluno' }, 'nome', 'ASC']]
                 }),
-                Nota.findAll({ where: { diario_id } })
+                Nota.findAll({ where: { diario_id }, order: [['ordem', 'ASC']] })
             ])
 
             return res.status(200).json(

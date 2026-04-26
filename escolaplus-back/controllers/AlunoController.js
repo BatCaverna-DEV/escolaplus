@@ -150,36 +150,38 @@ class AlunoController {
 
         //Gerar as notas dos diários
         for(const diario of diarios){
-            let cont = 1
+            let cont  = 1
+            let ordem = 1
             for(let i = 0; i < calendario.etapas; i++){
                 for(let j = 0; j < calendario.notas; j++){
-                    let n = {
+                    await Nota.create({
                         descricao: 'N'+cont,
                         matricula_id: matricula.id,
                         diario_id: diario.id,
-                        semestre: i+1
-                    }
+                        semestre: i+1,
+                        ordem: ordem++,
+                    })
                     cont++
-                    await Nota.create(n)
                 }//Fim do for das notas
 
                 //Cria as Recuperações
-                let rec = {
+                await Nota.create({
                     descricao: 'Rec'+(i+1),
                     matricula_id: matricula.id,
                     diario_id: diario.id,
-                    semestre: i+1
-                }
-                await Nota.create(rec)
+                    semestre: i+1,
+                    ordem: ordem++,
+                })
             }//Fim do for das etapas
+
             //Cria a Prova Final
-            let final = {
+            await Nota.create({
                 descricao: 'Final',
                 matricula_id: matricula.id,
                 diario_id: diario.id,
                 semestre: calendario.etapas,
-            }
-            await Nota.create(final)
+                ordem: ordem++,
+            })
         }//fim do for do diário
 
         return res.status(200).json({message:"Aluno matriculado com sucesso!", id:matricula.aluno_id})
