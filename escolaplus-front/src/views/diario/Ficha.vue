@@ -4,6 +4,10 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { statusPadrao } from "@/services/format.js";
 import AlertMessage from "@/components/AlertMessage.vue";
+import { getUser } from "@/services/token.js";
+
+const usuario      = getUser()
+const ehSecretaria = Number(usuario?.categoria) === 1
 
 const route = useRoute();
 const id    = route.params.id;
@@ -162,12 +166,12 @@ onMounted(async () => {
           <p class="text-muted small mb-0">{{ diario.turma?.descricao }}</p>
         </div>
         <div class="page-actions">
-          <template v-if="!editando">
+          <template v-if="ehSecretaria && !editando">
             <button class="btn btn-sm btn-primary" @click="iniciarEdicao">
               <font-awesome-icon icon="fa-solid fa-pen-to-square" class="me-1" />Editar
             </button>
           </template>
-          <template v-else>
+          <template v-else-if="ehSecretaria && editando">
             <button class="btn btn-sm btn-success" @click="salvarDiario" :disabled="salvandoDiario">
               <span v-if="salvandoDiario">
                 <span class="spinner-border spinner-border-sm me-1"></span>Salvando…

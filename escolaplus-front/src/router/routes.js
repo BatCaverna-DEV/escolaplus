@@ -17,6 +17,8 @@ import TurmaPrincipal from '@/views/turma/Principal.vue'
 import TurmaFicha from '@/views/turma/Ficha.vue'
 //DIARIO
 import DiarioFicha from '@/views/diario/Ficha.vue'
+//PROFESSOR
+import ProfessorPrincipal from '@/views/professor/Principal.vue'
 //FUNCIONÁRIO
 import FuncionarioPrincipal from '@/views/funcionario/Principal.vue'
 import FuncionarioFicha from '@/views/funcionario/Ficha.vue'
@@ -145,6 +147,18 @@ const router = createRouter({
                   path:'ficha/:id',
                   name: 'diario.ficha',
                   component: DiarioFicha,
+              }
+          ]
+      },
+      {
+          path: '/professor',
+          component: RouterViewOnly,
+          meta: { group: 'professor', requiresAuth: true },
+          children: [
+              {
+                  path: 'principal',
+                  name: 'professor.principal',
+                  component: ProfessorPrincipal,
               }
           ]
       },

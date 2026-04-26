@@ -1,14 +1,17 @@
 <script setup>
 import { RouterLink } from 'vue-router';
 import { getUser } from "@/services/token.js";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { apiFetch } from "@/services/http.js";
 import { categoriaFuncionario } from "@/services/format.js";
 import { useRoute } from "vue-router";
 
 const usuario = getUser();
-const perfil = ref({});
-const route = useRoute();
+const perfil  = ref({});
+const route   = useRoute();
+
+const ehSecretaria = computed(() => Number(usuario?.categoria) === 1)
+const ehProfessor  = computed(() => Number(usuario?.categoria) === 2)
 
 onMounted(async () => {
   const resposta = await apiFetch('/funcionario/get/' + usuario.funcionario_id);
@@ -27,7 +30,10 @@ onMounted(async () => {
     </div>
 
     <!-- Perfil do usuário -->
-    <RouterLink :to="'/funcionario/ficha/' + perfil.id" class="ep-profile text-decoration-none">
+    <RouterLink
+      :to="ehProfessor ? '/professor/principal' : '/funcionario/ficha/' + perfil.id"
+      class="ep-profile text-decoration-none"
+    >
       <div v-if="perfil.foto" class="ep-profile-photo-wrap">
         <img :src="perfil.foto" class="ep-profile-photo" alt="Foto">
       </div>
@@ -42,30 +48,43 @@ onMounted(async () => {
 
     <!-- Navegação principal -->
     <nav class="ep-nav flex-grow-1">
-      <RouterLink to="/" class="ep-nav-link" :class="{ active: route.path === '/' }">
-        <font-awesome-icon icon="fas fa-home" class="ep-nav-icon" />
-        <span>Início</span>
-      </RouterLink>
 
-      <RouterLink to="/aluno/principal" class="ep-nav-link" :class="{ active: route.path.startsWith('/aluno') }">
-        <font-awesome-icon icon="fas fa-user-graduate" class="ep-nav-icon" />
-        <span>Alunos</span>
-      </RouterLink>
+      <!-- ── Secretaria ── -->
+      <template v-if="ehSecretaria">
+        <RouterLink to="/" class="ep-nav-link" :class="{ active: route.path === '/' }">
+          <font-awesome-icon icon="fas fa-home" class="ep-nav-icon" />
+          <span>Início</span>
+        </RouterLink>
+        <RouterLink to="/aluno/principal" class="ep-nav-link" :class="{ active: route.path.startsWith('/aluno') }">
+          <font-awesome-icon icon="fas fa-user-graduate" class="ep-nav-icon" />
+          <span>Alunos</span>
+        </RouterLink>
+        <RouterLink to="/turma/principal" class="ep-nav-link" :class="{ active: route.path.startsWith('/turma') }">
+          <font-awesome-icon icon="fa-solid fa-landmark" class="ep-nav-icon" />
+          <span>Turmas</span>
+        </RouterLink>
+        <RouterLink to="/funcionario/principal" class="ep-nav-link" :class="{ active: route.path.startsWith('/funcionario') }">
+          <font-awesome-icon icon="fa-solid fa-user-tie" class="ep-nav-icon" />
+          <span>Funcionários</span>
+        </RouterLink>
+        <RouterLink to="/calendario/principal" class="ep-nav-link" :class="{ active: route.path.startsWith('/calendario') }">
+          <font-awesome-icon icon="fa-solid fa-calendar-days" class="ep-nav-icon" />
+          <span>Ano Letivo</span>
+        </RouterLink>
+      </template>
 
-      <RouterLink to="/turma/principal" class="ep-nav-link" :class="{ active: route.path.startsWith('/turma') }">
-        <font-awesome-icon icon="fa-solid fa-landmark" class="ep-nav-icon" />
-        <span>Turmas</span>
-      </RouterLink>
+      <!-- ── Professor ── -->
+      <template v-else-if="ehProfessor">
+        <RouterLink to="/professor/principal" class="ep-nav-link" :class="{ active: route.path.startsWith('/professor') }">
+          <font-awesome-icon icon="fa-solid fa-book-open" class="ep-nav-icon" />
+          <span>Meus Diários</span>
+        </RouterLink>
+        <RouterLink :to="'/funcionario/ficha/' + perfil.id" class="ep-nav-link" :class="{ active: route.path.startsWith('/funcionario/ficha') }">
+          <font-awesome-icon icon="fa-solid fa-circle-user" class="ep-nav-icon" />
+          <span>Minha Conta</span>
+        </RouterLink>
+      </template>
 
-      <RouterLink to="/funcionario/principal" class="ep-nav-link" :class="{ active: route.path.startsWith('/funcionario') }">
-        <font-awesome-icon icon="fa-solid fa-user-tie" class="ep-nav-icon" />
-        <span>Funcionários</span>
-      </RouterLink>
-
-      <RouterLink to="/calendario/principal" class="ep-nav-link" :class="{ active: route.path.startsWith('/calendario') }">
-        <font-awesome-icon icon="fa-solid fa-calendar-days" class="ep-nav-icon" />
-        <span>Ano Letivo</span>
-      </RouterLink>
     </nav>
 
     <div class="ep-divider"></div>
