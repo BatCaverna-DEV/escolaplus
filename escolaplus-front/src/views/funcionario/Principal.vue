@@ -1,111 +1,111 @@
 <script setup>
+import { ref, onMounted } from "vue";
+import { apiFetch } from "@/services/http.js";
+import { categoriaFuncionario, statusPadrao } from "@/services/format.js";
 
-  import {ref, onMounted} from "vue";
-  import {apiFetch} from "@/services/http.js";
-  import {categoriaFuncionario, dataBrasil, statusPadrao} from "@/services/format.js";
-  import {statusAluno} from "@/services/format.js";
-  import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+const funcionarios = ref([])
+const buscar       = ref('')
 
-  const funcionarios = ref([])
-  const buscar = ref('')
-  const status = ref('0')
+onMounted(async () => { await listar() })
 
-  onMounted(async () => {
-    await listar()
-  })
+async function listar() {
+  const resposta = await apiFetch('/funcionario/listar')
+  if (resposta.ok) funcionarios.value = await resposta.json()
+}
 
-  async function listar(){
-    const resposta = await apiFetch('/funcionario/listar')
-    if(resposta.ok){
-      funcionarios.value = await resposta.json()
-    }
-  }
-
-  function filtrar(){
-    var lista = funcionarios.value;
-    if(buscar.value.length > 0){
-      return lista = funcionarios.value.filter(funcionario => funcionario.nome.toLowerCase().includes(buscar.value.toLowerCase()));
-    }
-    return lista
-  }
-
+function filtrar() {
+  if (!buscar.value) return funcionarios.value
+  return funcionarios.value.filter(f =>
+    f.nome.toLowerCase().includes(buscar.value.toLowerCase())
+  )
+}
 </script>
 
 <template>
-  <div class="container-fluid shadow p-3">
-    <nav class="navbar bg-body-tertiary">
-      <div class="container-fluid">
-        <h3>Funcionários</h3>
-        <span>
-          <a class="btn btn-outline-primary mx-1" href="/funcionario/cadastrar">
-            <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon> Novo
-          </a>
-          <RouterLink class="btn btn-outline-secondary mx-1" to="/">
-            <font-awesome-icon icon="fa-solid fa-caret-left"/>Voltar
-          </RouterLink>
-        </span>
-      </div>
-    </nav>
-
-    <form >
-      <fieldset>
-        <legend>Filtro</legend>
-        <div class="row">
-          <div class="col-sm-8">
-            <label for="nome">Nome do Funcionario</label>
-            <input v-model="buscar" type="text" id="nome" placeholder="Nome do Funcionário" class="form-control">
-          </div>
-        </div>
-      </fieldset>
-    </form>
-
-    <div class="row my-2">
-      <div class="col-sm-1"></div>
-      <div class="col-sm-6"><strong>DADOS PRINCIPAIS</strong></div>
-      <div class="col-sm-2 text-center"><strong>CATEGORIA</strong></div>
-      <div class="col-sm-2 text-center"><strong>STATUS</strong></div>
-      <div class="col-sm-1"><strong></strong></div>
-    </div>
-
-    <div class="row mt-1 rounded rounded-1 p-1 bg-body-tertiary" v-for="funcionario in filtrar()">
-
-      <div class="col-sm-1 pt-1">
-        <img :src="funcionario.foto" width="50px" class="">
-      </div>
-
-      <div class="col-sm-6">
-        <h5>
-          <RouterLink :to="'/funcionario/ficha/'+funcionario.id" class="text-decoration-none">{{funcionario.nome}}</RouterLink>
-        </h5>
-        <div>CPF: {{funcionario.cpf}}</div>
-
-      </div>
-
-      <div class="col-sm-2 pt-4">
-        <p class="text-center">{{categoriaFuncionario(funcionario?.usuario?.categoria)}}</p>
-      </div>
-
-      <div class="col-sm-2 pt-4">
-        <p :class="['text-center',
-            {
-              'text-danger': funcionario.status == 0,
-              'text-success': funcionario.status == 1,
-              'fw-bolder': funcionario.status == 1,
-            }]">{{statusPadrao(funcionario.status)}}</p>
-
-      </div>
-
-      <div class="col-sm-1">
-        <RouterLink :to="'/funcionario/ficha/'+funcionario.id" class="btn btn-outline-secondary text-decoration-none float-end mt-4">
-          <font-awesome-icon icon="fa-solid fa-eye"></font-awesome-icon>
+  <div>
+    <!-- Cabeçalho -->
+    <div class="page-header">
+      <h4 class="page-title">
+        <font-awesome-icon icon="fa-solid fa-user-tie" class="me-2 text-success" />Funcionários
+      </h4>
+      <div class="page-actions">
+        <a class="btn btn-success btn-sm" href="/funcionario/cadastrar">
+          <font-awesome-icon icon="fa-solid fa-plus" class="me-1" />Novo Funcionário
+        </a>
+        <RouterLink class="btn btn-outline-secondary btn-sm" to="/">
+          <font-awesome-icon icon="fa-solid fa-caret-left" class="me-1" />Voltar
         </RouterLink>
       </div>
     </div>
 
-  </div> <!-- FIM DA DIV MAIOR -->
+    <!-- Filtro -->
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body py-2">
+        <div class="d-flex align-items-end gap-2">
+          <div class="flex-grow-1">
+            <label class="form-label small fw-semibold mb-1">Buscar por nome</label>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white">
+                <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="text-muted" />
+              </span>
+              <input v-model="buscar" type="text" class="form-control" placeholder="Nome do funcionário…" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <!-- Tabela -->
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th style="width:56px;"></th>
+              <th>Funcionário</th>
+              <th>CPF</th>
+              <th class="text-center">Categoria</th>
+              <th class="text-center">Status</th>
+              <th style="width:56px;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="f in filtrar()" :key="f.id">
+              <td class="ps-3">
+                <img :src="f.foto" class="avatar" alt="">
+              </td>
+              <td>
+                <RouterLink :to="'/funcionario/ficha/' + f.id" class="fw-semibold text-decoration-none text-dark">
+                  {{ f.nome }}
+                </RouterLink>
+              </td>
+              <td class="text-muted small">{{ f.cpf }}</td>
+              <td class="text-center">
+                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-2">
+                  {{ categoriaFuncionario(f?.usuario?.categoria) }}
+                </span>
+              </td>
+              <td class="text-center">
+                <span class="badge rounded-pill px-2 py-1"
+                  :class="f.status == 1 ? 'badge-ativo' : 'badge-inativo'">
+                  {{ statusPadrao(f.status) }}
+                </span>
+              </td>
+              <td class="pe-3">
+                <RouterLink :to="'/funcionario/ficha/' + f.id" class="btn btn-sm btn-outline-secondary">
+                  <font-awesome-icon icon="fa-solid fa-eye" />
+                </RouterLink>
+              </td>
+            </tr>
+            <tr v-if="filtrar().length === 0">
+              <td colspan="6" class="text-center text-muted py-5">
+                <font-awesome-icon icon="fa-solid fa-inbox" class="d-block mx-auto mb-2 fs-3" />
+                Nenhum funcionário encontrado
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </template>
-
-<style scoped>
-
-</style>

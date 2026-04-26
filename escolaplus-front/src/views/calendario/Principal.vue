@@ -1,105 +1,108 @@
 <script setup>
-
-import {ref, onMounted} from 'vue'
-import {apiFetch} from "@/services/http.js";
-import {statusPadrao} from "@/services/format.js";
+import { ref, onMounted } from 'vue'
+import { apiFetch } from "@/services/http.js";
+import { statusPadrao } from "@/services/format.js";
 import AlertMessage from "@/components/AlertMessage.vue";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
-const calendarios = ref({})
-const status = ref(0)
-const erro = ref('')
+const calendarios = ref([])
+const temAtivo    = ref(false)
+const erro        = ref('')
 
-onMounted(async () => {
-  await listar()
-})
+onMounted(async () => { await listar() })
 
-async function listar(){
-  try{
-    let resposta = await apiFetch('/calendario/listar')
-    if(resposta.ok){
+async function listar() {
+  try {
+    const resposta = await apiFetch('/calendario/listar')
+    if (resposta.ok) {
       calendarios.value = await resposta.json()
-      if(calendarios.value[0].status > 0){
-        status.value = calendarios.value[0].status
-      }
-    }else{
-      let msg = await resposta.json()
+      temAtivo.value    = calendarios.value.some(c => c.status === 1)
+    } else {
+      const msg  = await resposta.json()
       erro.value = msg.message
     }
-  }catch(err){
+  } catch (err) {
     erro.value = err.message
   }
 }
-
 </script>
 
 <template>
-  <div class="container-fluid shadow p-3">
-    <nav class="navbar bg-body-tertiary">
-      <div class="container-fluid">
-        <h4>Períodos Letivos</h4>
-        <span>
-          <RouterLink class="btn btn-primary mx-1" to="/" v-if="status === 0">
-            <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon> Novo
-          </RouterLink>
-
-          <RouterLink class="btn btn-secondary mx-1" to="/">
-            <font-awesome-icon icon="fa-solid fa-caret-left"/>Voltar
-          </RouterLink>
-        </span>
+  <div>
+    <!-- Cabeçalho -->
+    <div class="page-header">
+      <h4 class="page-title">
+        <font-awesome-icon icon="fa-solid fa-calendar-days" class="me-2 text-success" />Ano Letivo
+      </h4>
+      <div class="page-actions">
+        <RouterLink v-if="!temAtivo" class="btn btn-success btn-sm" to="/">
+          <font-awesome-icon icon="fa-solid fa-plus" class="me-1" />Novo
+        </RouterLink>
+        <RouterLink class="btn btn-outline-secondary btn-sm" to="/">
+          <font-awesome-icon icon="fa-solid fa-caret-left" class="me-1" />Voltar
+        </RouterLink>
       </div>
-    </nav>
-
-    <AlertMessage :msg="erro" tipo="danger" v-if="erro"></AlertMessage>
-
-    <div class="row my-3 p-1">
-      <div class="col-sm-3 fw-bolder">DESCRIÇÃO</div>
-      <div class="col-sm fw-bolder text-center">ANO</div>
-      <div class="col-sm fw-bolder text-center">MÉDIA</div>
-      <div class="col-sm fw-bolder text-center">ETAPAS</div>
-      <div class="col-sm fw-bolder text-center">NOTAS</div>
-      <div class="col-sm fw-bolder text-center">STATUS</div>
-      <div class="col-sm"></div>
     </div>
 
-    <div class="row mt-1 bg-body-tertiary p-2 selecionado" v-for="calendario in calendarios">
+    <AlertMessage :msg="erro" tipo="danger" />
 
-      <div class="col-sm-3">{{ calendario.descricao }}</div>
-      <div class="col-sm text-center">{{ calendario.ano }}</div>
-      <div class="col-sm text-center">{{ calendario.media }}</div>
-      <div class="col-sm text-center">{{ calendario.etapas }}</div>
-      <div class="col-sm text-center">{{ calendario.notas * 2 }}</div>
-      <div class="col-sm text-center fw-bolder"
-           :class="{'text-success': calendario.status === 1, 'text-danger': calendario.status === 0}">
-        {{ statusPadrao(calendario.status) }}
+    <!-- Tabela -->
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Descrição</th>
+              <th class="text-center">Ano</th>
+              <th class="text-center">Média</th>
+              <th class="text-center">Etapas</th>
+              <th class="text-center">Notas</th>
+              <th class="text-center">Status</th>
+              <th style="width:60px;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="cal in calendarios" :key="cal.id">
+              <td class="ps-3 fw-semibold">{{ cal.descricao }}</td>
+              <td class="text-center">{{ cal.ano }}</td>
+              <td class="text-center">{{ cal.media }}</td>
+              <td class="text-center">{{ cal.etapas }}</td>
+              <td class="text-center">{{ cal.notas * 2 }}</td>
+              <td class="text-center">
+                <span class="badge rounded-pill px-2 py-1"
+                  :class="cal.status === 1 ? 'badge-ativo' : 'badge-inativo'">
+                  {{ statusPadrao(cal.status) }}
+                </span>
+              </td>
+              <td class="pe-3">
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                    <font-awesome-icon icon="fa-solid fa-bars" />
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                    <li>
+                      <RouterLink class="dropdown-item py-2" to="#">
+                        <font-awesome-icon icon="fa-solid fa-pen-to-square" class="me-2 text-muted" />Editar
+                      </RouterLink>
+                    </li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li>
+                      <RouterLink class="dropdown-item py-2 text-danger" to="#">
+                        <font-awesome-icon icon="fa-solid fa-circle-xmark" class="me-2" />Fechar
+                      </RouterLink>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="calendarios.length === 0">
+              <td colspan="7" class="text-center text-muted py-5">
+                <font-awesome-icon icon="fa-solid fa-inbox" class="d-block mx-auto mb-2 fs-3" />
+                Nenhum período letivo cadastrado
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-
-      <div class="col-sm text-center d-flex justify-content-end">
-        <div class="dropdown">
-          <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <font-awesome-icon icon="fa-solid fa-bars"></font-awesome-icon>
-          </button>
-          <ul class="dropdown-menu">
-            <li>
-              <RouterLink class="dropdown-item" to="#">
-                <font-awesome-icon icon="fa-solid fa-pen-to-square"></font-awesome-icon> Editar
-              </RouterLink>
-            </li>
-            <div class="dropdown-divider"></div>
-            <li>
-              <RouterLink class="dropdown-item" to="#">
-                <font-awesome-icon icon="fa-solid fa-circle-xmark"></font-awesome-icon> Fechar
-              </RouterLink>
-            </li>
-          </ul>
-        </div>
-      </div>
-
     </div>
-
-  </div> <!-- Fim do Container -->
+  </div>
 </template>
-
-<style scoped>
-
-</style>

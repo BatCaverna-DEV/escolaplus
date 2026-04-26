@@ -1,148 +1,141 @@
 <script setup>
+import { ref, onMounted } from "vue";
+import { apiFetch } from "@/services/http.js";
+import { dataBrasil, statusAluno } from "@/services/format.js";
 
-  import {ref, onMounted} from "vue";
-  import {apiFetch} from "@/services/http.js";
-  import {dataBrasil} from "@/services/format.js";
-  import {statusAluno} from "@/services/format.js";
+const alunos     = ref([])
+const buscar     = ref('')
+const carregando = ref(false)
 
-  const alunos = ref([])
-  const buscar = ref('')
-  const status = ref('0')
-  const carregando = ref(false)
+onMounted(async () => {
+  carregando.value = true
+  await inicializacao()
+  carregando.value = false
+})
 
-  onMounted(async () => {
+async function inicializacao() {
+  try {
+    const resposta = await apiFetch('/aluno/buscar', {
+      method: 'POST',
+      body: { chave: '', status: 1 }
+    })
+    if (resposta.status === 200) alunos.value = await resposta.json()
+    else alert(resposta.message)
+  } catch (error) {
+    alert(error.message)
+  }
+}
+
+async function listar() {
+  try {
     carregando.value = true
-    await inicializacao()
-    carregando.value = false
-  })
-
-  async function inicializacao(){
-    try{
-      carregando.value = true
-      const resposta = await apiFetch('/aluno/buscar', {
-        method: 'POST',
-        body: {
-          chave: '',
-          status: 1
-        }
-      })
-      if(resposta.status == 200){
-        alunos.value = await resposta.json()
-      }else{
-        alert(resposta.message)
-      }
-    }catch(error){
-      alert(error.message)
+    const resposta = await apiFetch('/aluno/listar/' + buscar.value)
+    if (resposta.ok) {
+      alunos.value     = await resposta.json()
+      carregando.value = false
+    } else {
+      const msg = await resposta.json()
+      alert(resposta.status + ' - ' + msg.message)
+      carregando.value = false
     }
+  } catch (error) {
+    alert(error.message)
   }
-
-  async function listar(){
-    try{
-      carregando.value = true
-      console.log('Buscar: '+buscar.value)
-      const resposta = await apiFetch('/aluno/listar/'+buscar.value)
-      if(resposta.ok){
-        alunos.value = await resposta.json()
-        carregando.value = false
-      }else{
-        const msg = resposta.json()
-        alert(resposta.status + ' - '+msg.message)
-        carregando.value = false
-      }
-    }catch(error){
-      alert(error.message)
-    }
-  }
-
+}
 </script>
 
 <template>
-  <div class="container-fluid shadow p-3">
-    <nav class="navbar bg-body-tertiary">
-      <div class="container-fluid">
-        <h4>Alunos</h4>
-        <span>
-          <RouterLink class="btn btn-outline-primary mx-1" to="/aluno/cadastrar">
-            <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon> Novo
-          </RouterLink>
-          <RouterLink class="btn btn-outline-secondary mx-1" to="/">
-            <font-awesome-icon icon="fa-solid fa-caret-left"/>Voltar
-          </RouterLink>
-        </span>
-      </div>
-    </nav>
-
-    <form @submit.prevent="listar">
-      <fieldset>
-        <legend>Filtro</legend>
-        <div class="row">
-          <div class="col-sm-8">
-            <label for="nome">Nome do Aluno</label>
-            <input v-model="buscar" type="text" id="nome" placeholder="Nome do aluno" class="form-control">
-          </div>
-          <div class="col-sm-2">
-            <label for="status">STATUS</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Matriculados</option>
-              <option value="0">Não Matriculados</option>
-            </select>
-          </div>
-        </div>
-      </fieldset>
-    </form>
-
-    <!-- Aviso de carregamento -->
-    <div class="container-fluid mt-3" v-if="carregando">
-      <h5 class="text-success text-center">Carregando alunos...</h5>
-      <div class="d-flex justify-content-center">
-        <div class="spinner-border text-success" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="row my-2" v-if="!carregando && alunos.length > 0">
-      <div class="col-sm-1"></div>
-      <div class="col-sm-8"><strong>DADOS PRINCIPAIS</strong></div>
-      <div class="col-sm-2"><strong>STATUS</strong></div>
-      <div class="col-sm-1"><strong></strong></div>
-    </div>
-
-    <div class="row mt-1 rounded rounded-1 p-1 bg-body-tertiary" v-if="!carregando" v-for="aluno in alunos">
-
-      <div class="col-sm-1 pt-1">
-        <img :src="aluno.foto" width="50px" class="rounded rounded-1">
-      </div>
-
-      <div class="col-sm-8">
-        <h5>
-          <RouterLink :to="'/aluno/ficha/'+aluno.id" class="text-decoration-none">{{aluno.nome}}</RouterLink>
-        </h5>
-        <div>MATRÍCULA: {{aluno.matriculas?.[0]?.matricula}}</div>
-        <div>NASCIMENTO: {{dataBrasil(aluno.nascimento)}}</div>
-      </div>
-
-      <div class="col-sm-2 pt-4">
-        <span :class="['mt-3',
-            {
-              'text-danger': aluno.status == 0,
-              'text-success': aluno.status == 1,
-              'fw-bolder': aluno.status == 1,
-            }]">{{statusAluno(aluno.status)}}</span>
-
-      </div>
-
-      <div class="col-sm-1">
-        <RouterLink :to="'/aluno/ficha/'+aluno.id" class="btn btn-outline-secondary text-decoration-none float-end mt-4">
-          <font-awesome-icon icon="fa-solid fa-eye"></font-awesome-icon>
+  <div>
+    <!-- Cabeçalho da página -->
+    <div class="page-header">
+      <h4 class="page-title">
+        <font-awesome-icon icon="fas fa-user-graduate" class="me-2 text-success" />Alunos
+      </h4>
+      <div class="page-actions">
+        <RouterLink class="btn btn-success btn-sm" to="/aluno/cadastrar">
+          <font-awesome-icon icon="fa-solid fa-plus" class="me-1" />Novo Aluno
+        </RouterLink>
+        <RouterLink class="btn btn-outline-secondary btn-sm" to="/">
+          <font-awesome-icon icon="fa-solid fa-caret-left" class="me-1" />Voltar
         </RouterLink>
       </div>
     </div>
 
-  </div> <!-- FIM DA DIV MAIOR -->
+    <!-- Filtro -->
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body py-2">
+        <form @submit.prevent="listar" class="d-flex align-items-end gap-2">
+          <div class="flex-grow-1">
+            <label for="busca" class="form-label small fw-semibold mb-1">Buscar por nome</label>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white">
+                <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="text-muted" />
+              </span>
+              <input v-model="buscar" type="text" id="busca" class="form-control" placeholder="Nome do aluno…" />
+            </div>
+          </div>
+          <div>
+            <button type="submit" class="btn btn-primary btn-sm">
+              <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="me-1" />Buscar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
+    <!-- Spinner -->
+    <div v-if="carregando" class="text-center py-5">
+      <div class="spinner-border text-success" role="status"></div>
+      <p class="text-muted mt-2 small">Carregando alunos…</p>
+    </div>
+
+    <!-- Tabela -->
+    <div v-if="!carregando" class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th style="width:56px;"></th>
+              <th>Aluno</th>
+              <th>Matrícula</th>
+              <th>Nascimento</th>
+              <th>Status</th>
+              <th style="width:56px;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="aluno in alunos" :key="aluno.id">
+              <td class="ps-3">
+                <img :src="aluno.foto" class="avatar" alt="">
+              </td>
+              <td>
+                <RouterLink :to="'/aluno/ficha/' + aluno.id" class="fw-semibold text-decoration-none text-dark">
+                  {{ aluno.nome }}
+                </RouterLink>
+              </td>
+              <td class="text-muted small">{{ aluno.matriculas?.[0]?.matricula ?? '—' }}</td>
+              <td class="text-muted small">{{ dataBrasil(aluno.nascimento) }}</td>
+              <td>
+                <span class="badge rounded-pill px-2 py-1"
+                  :class="aluno.status == 1 ? 'badge-ativo' : 'badge-inativo'">
+                  {{ statusAluno(aluno.status) }}
+                </span>
+              </td>
+              <td class="pe-3">
+                <RouterLink :to="'/aluno/ficha/' + aluno.id" class="btn btn-sm btn-outline-secondary">
+                  <font-awesome-icon icon="fa-solid fa-eye" />
+                </RouterLink>
+              </td>
+            </tr>
+            <tr v-if="alunos.length === 0">
+              <td colspan="6" class="text-center text-muted py-5">
+                <font-awesome-icon icon="fa-solid fa-inbox" class="d-block mx-auto mb-2 fs-3" />
+                Nenhum aluno encontrado
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </template>
-
-<style scoped>
-
-</style>

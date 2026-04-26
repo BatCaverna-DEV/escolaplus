@@ -1,312 +1,254 @@
 <script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { apiFetch } from "@/services/http.js";
+import AlertMessage from "@/components/AlertMessage.vue";
 
-import {ref, onBeforeUnmount, computed, onMounted} from 'vue'
-  import {useRouter, useRoute} from 'vue-router'
-  import {apiFetch} from "@/services/http.js";
-  import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+const erro   = ref('')
+const router = useRouter()
+const route  = useRoute()
 
-  // v-model no componente: modelValue <-> update:modelValue
-  const erro = ref('')
+const estados = [
+  'Acre','Alagoas','Amapá','Amazonas','Bahia','Ceará','Distrito Federal',
+  'Espírito Santo','Goiás','Maranhão','Mato Grosso','Mato Grosso do Sul',
+  'Minas Gerais','Pará','Paraíba','Paraná','Pernambuco','Piauí',
+  'Rio de Janeiro','Rio Grande do Norte','Rio Grande do Sul','Rondônia',
+  'Roraima','Santa Catarina','São Paulo','Sergipe','Tocantins',
+]
 
-  const router = useRouter()
-  const route = useRoute()
+const aluno = ref({
+  id: '', nome: '', cep: '', endereco: '', numero: '', bairro: '',
+  cidade: '', estado: '', nascimento: '', pai: '', cpf_pai: '', mae: '',
+  cpf_mae: '', telefone1: '', telefone2: '', telefone3: '', email: '',
+  obs: '', saude: '', hospital: '', sozinho: '', alergia: '', redes: '',
+})
 
-  const aluno = ref({
-    nome: '',
-    matricula: '',
-    cep:'',
-    endereco:'',
-    numero:'',
-    bairro:'',
-    cidade:'',
-    estado:'',
-    nascimento:'',
-    pai: '',
-    cpf_pai:'',
-    mae:'',
-    cpf_mae:'',
-    telefone1:'',
-    telefone2:'',
-    telefone3:'',
-    email:'',
-    obs:'',
-    saude:'',
-    hospital:'',
-    sozinho:'',
-    alergia:'',
-    redes:''
-  })
-
-  async function salvar(){
-    erro.value = ''
-    try{
-      const resposta = await apiFetch('/aluno/editar', {
-        method: 'PUT',
-        body: aluno.value
-      })
-      if(resposta.ok){
-        const aluno = await resposta.json()
-        alert('Aluno editado com sucesso!')
-        router.push('/aluno/ficha/'+aluno.id)
-      }else{
-        const msg = await resposta.json()
-        erro.value = `${resposta.status} - ${msg.message}`
-      }
-    }catch(error){
-      erro.value = error
+onMounted(async () => {
+  try {
+    const resposta = await apiFetch('/aluno/get/' + route.params.id)
+    if (resposta.ok) {
+      const d = await resposta.json()
+      Object.assign(aluno.value, d)
+      aluno.value.nascimento = (d.nascimento || '').split('T')[0]
     }
+  } catch (error) {
+    alert(error.message)
   }
+})
 
-  async function buscarCep(){
-
-    let cep = aluno.value.cep.replace('-','')
-    const resposta = await fetch('https://viacep.com.br/ws/'+cep+'/json')
-    const dados = await resposta.json()
-
-    aluno.value.endereco = dados.logradouro
-    aluno.value.bairro = dados.bairro
-    aluno.value.cidade = dados.localidade
-    aluno.value.estado = dados.estado
-
-  }
-
-  onMounted(async () => {
-    try{
-      let id = route.params.id
-      let resposta = await apiFetch('/aluno/get/'+id)
-      if(resposta.ok){
-        const dados = await resposta.json()
-        aluno.value.id = dados.id
-        aluno.value.nome = dados.nome
-        aluno.value.matricula = dados.matricula
-        aluno.value.cep = dados.cep
-        aluno.value.endereco = dados.endereco
-        aluno.value.numero = dados.numero
-        aluno.value.bairro = dados.bairro
-        aluno.value.cidade = dados.cidade
-        aluno.value.estado = dados.estado
-        aluno.value.nascimento = (dados.nascimento || '').split('T')[0];
-        aluno.value.pai = dados.pai
-        aluno.value.cpf_pai = dados.cpf_pai
-        aluno.value.mae = dados.mae
-        aluno.value.cpf_mae = dados.cpf_mae
-        aluno.value.telefone1 = dados.telefone1
-        aluno.value.telefone2 = dados.telefone2
-        aluno.value.telefone3 = dados.telefone3
-        aluno.value.email = dados.email
-        aluno.value.obs = dados.obs
-        aluno.value.saude = dados.saude
-        aluno.value.hospital = dados.hospital
-        aluno.value.sozinho = dados.sozinho
-        aluno.value.alergia = dados.alergia
-        aluno.value.redes = dados.redes
-      }
-    }catch(error){
-      alert(error.message)
+async function salvar() {
+  erro.value = ''
+  try {
+    const resposta = await apiFetch('/aluno/editar', { method: 'PUT', body: aluno.value })
+    if (resposta.ok) {
+      const dados = await resposta.json()
+      alert('Aluno editado com sucesso!')
+      router.push('/aluno/ficha/' + dados.id)
+    } else {
+      const msg  = await resposta.json()
+      erro.value = `${resposta.status} - ${msg.message}`
     }
+  } catch (error) {
+    erro.value = error
+  }
+}
 
-  }) //Fim do onMountad
-
+async function buscarCep() {
+  const cep  = aluno.value.cep.replace('-', '')
+  const resp = await fetch('https://viacep.com.br/ws/' + cep + '/json')
+  const d    = await resp.json()
+  aluno.value.endereco = d.logradouro
+  aluno.value.bairro   = d.bairro
+  aluno.value.cidade   = d.localidade
+  aluno.value.estado   = d.estado
+}
 </script>
 
 <template>
-  <div class="container-fluid">
-    <nav class="navbar navbar-light bg-light">
-      <h3><i class="fas fa-user-graduate"></i>Editar Dados de Aluno - {{aluno.nome}}</h3>
-      <ul class="nav justify-content-end">
-        <li class="nav-item">
-          <RouterLink :to="`/aluno/ficha/${aluno.id}`" class="btn btn-outline-secondary">
-            <font-awesome-icon icon="fa-solid fa-caret-left"/>Voltar
-          </RouterLink>
-        </li>
-      </ul>
-    </nav>
-  </div>
-
-  <div class="container-fluid">
-
-    <div v-if="erro" class="alert alert-danger" role="alert">
-      <strong>ERRO: </strong> {{ erro }}
+  <div>
+    <!-- Cabeçalho -->
+    <div class="page-header">
+      <h4 class="page-title">
+        <font-awesome-icon icon="fa-solid fa-pen-to-square" class="me-2 text-primary" />
+        Editar — {{ aluno.nome }}
+      </h4>
+      <div class="page-actions">
+        <RouterLink :to="`/aluno/ficha/${aluno.id}`" class="btn btn-outline-secondary btn-sm">
+          <font-awesome-icon icon="fa-solid fa-caret-left" class="me-1" />Voltar
+        </RouterLink>
+      </div>
     </div>
 
-    <div class="row">
-    <div class="col-sm shadow p-3">
+    <AlertMessage :msg="erro" tipo="danger" />
 
-      <form @submit.prevent="salvar">
+    <form @submit.prevent="salvar">
 
-      <div class="row">
-        <div class="col-sm-9 form-group">
-          <label for="nome">NOME DO ALUNO</label>
-          <input v-model="aluno.nome" type="text" class="form-control" id="nome" placeholder="Nome do ALUNO" required/>
+      <!-- Dados Pessoais -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header">
+          <font-awesome-icon icon="fa-solid fa-id-card" class="me-2 text-success" />Dados Pessoais
         </div>
-        <div class="col-sm-3 form-group">
-          <label for="nascimento">DATA DE NASCIMENTO</label>
-          <input v-model="aluno.nascimento" type="date" class="form-control" id="nascimento" required/>
-        </div>
-      </div>
-
-      <div class="row mt-3">
-        <div class="col-sm-2 form-group">
-          <label for="cep">CEP</label>
-          <input v-mask="'#####-###'" v-model="aluno.cep" @change="buscarCep" type="text" class="form-control" id="cep" placeholder="CEP"/>
-        </div>
-        <div class="col-sm-8 form-group">
-          <label for="endereco">ENDEREÇO</label>
-          <input v-model="aluno.endereco" type="text" class="form-control" id="endereco" placeholder="Endereço do Aluno" required/>
-        </div>
-        <div class="col-sm-2 form-group">
-          <label for="numero">NÚMERO</label>
-          <input v-model="aluno.numero" type="number" class="form-control" id="numero" required/>
-        </div>
-      </div>
-
-      <div class="row mt-3">
-        <div class="col-sm-4 form-group">
-          <label for="bairro">BAIRRO</label>
-          <input v-model="aluno.bairro" type="text" class="form-control" id="bairro" required/>
-        </div>
-        <div class="col-sm-4 form-group">
-          <label for="cidade">CIDADE</label>
-          <input v-model="aluno.cidade" type="text" class="form-control" id="cidade" placeholder="CIDADE" required/>
-        </div>
-        <div class="col-sm-4 form-group">
-          <label for="estado">ESTADO</label>
-          <select v-model="aluno.estado" name="estado" id="estado" class="form-select">
-            <option value="">Selecione o Estado</option>
-            <option value="Acre">Acre</option>
-            <option value="Alagoas">Alagoas</option>
-            <option value="Amapá">Amapá</option>
-            <option value="Amazonas">Amazonas</option>
-            <option value="Bahia">Bahia</option>
-            <option value="Ceará">Ceará</option>
-            <option value="Distrito Federal">Distrito Federal</option>
-            <option value="Espírito Santo">Espírito Santo</option>
-            <option value="Goiás">Goiás</option>
-            <option value="Maranhão">Maranhão</option>
-            <option value="Mato Grosso">Mato Grosso</option>
-            <option value="Mato Grosso do Sul">Mato Grosso do Sul</option>
-            <option value="Minas Gerais">Minas Gerais</option>
-            <option value="Pará">Pará</option>
-            <option value="Paraíba">Paraíba</option>
-            <option value="Paraná">Paraná</option>
-            <option value="Pernambuco">Pernambuco</option>
-            <option value="Piauí">Piauí</option>
-            <option value="Rio de Janeiro">Rio de Janeiro</option>
-            <option value="Rio Grande do Norte">Rio Grande do Norte</option>
-            <option value="Rio Grande do Sul">Rio Grande do Sul</option>
-            <option value="Rondônia">Rondônia</option>
-            <option value="Roraima">Roraima</option>
-            <option value="Santa Catarina">Santa Catarina</option>
-            <option value="São Paulo">São Paulo</option>
-            <option value="Sergipe">Sergipe</option>
-            <option value="Tocantins">Tocantins</option>
-          </select>
-        </div>
-      </div>
-
-        <div class="row mt-3">
-          <div class="col-sm-2">
-            <label for="telefone1">TELEFONE 1</label>
-            <input v-mask="'(##) #####-####'" v-model="aluno.telefone1" type="text" class="form-control" id="telefone1" required/>
-          </div>
-          <div class="col-sm-2">
-            <label for="telefone1">TELEFONE 2</label>
-            <input v-mask="'(##) #####-####'" v-model="aluno.telefone2" type="text" class="form-control" id="telefone1"/>
-          </div>
-          <div class="col-sm-2">
-            <label for="telefone1">TELEFONE 3</label>
-            <input v-mask="'(##) #####-####'" v-model="aluno.telefone3" type="text" class="form-control" id="telefone1"/>
-          </div>
-          <div class="col-sm-6 form-group">
-            <label for="email">E-MAIL</label>
-            <input v-model="aluno.email" type="text" class="form-control" id="email" placeholder="E-MAIL"/>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-sm-9">
+              <label class="form-label small fw-semibold">Nome do Aluno <span class="text-danger">*</span></label>
+              <input v-model="aluno.nome" type="text" class="form-control" required />
+            </div>
+            <div class="col-sm-3">
+              <label class="form-label small fw-semibold">Nascimento <span class="text-danger">*</span></label>
+              <input v-model="aluno.nascimento" type="date" class="form-control" required />
+            </div>
           </div>
         </div>
+      </div>
 
-      <div class="row mt-3">
-        <div class="col-sm-9 form-group">
-          <label for="pai">NOME DO PAI</label>
-          <input v-model="aluno.pai" type="text" class="form-control" id="pai" placeholder="Nome do Pai"/>
+      <!-- Endereço -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header">
+          <font-awesome-icon icon="fa-solid fa-location-dot" class="me-2 text-success" />Endereço
         </div>
-        <div class="col-sm-3 form-group">
-          <label for="cpf_pai">CPF DO PAI</label>
-          <input v-mask="'###.###.###-##'" v-model="aluno.cpf_pai" type="text" class="form-control" id="cpf_pai" placeholder="CPF do Pai"/>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-sm-2">
+              <label class="form-label small fw-semibold">CEP</label>
+              <input v-mask="'#####-###'" v-model="aluno.cep" @change="buscarCep" type="text" class="form-control" />
+            </div>
+            <div class="col-sm-8">
+              <label class="form-label small fw-semibold">Endereço <span class="text-danger">*</span></label>
+              <input v-model="aluno.endereco" type="text" class="form-control" required />
+            </div>
+            <div class="col-sm-2">
+              <label class="form-label small fw-semibold">Número <span class="text-danger">*</span></label>
+              <input v-model="aluno.numero" type="number" class="form-control" required />
+            </div>
+            <div class="col-sm-4">
+              <label class="form-label small fw-semibold">Bairro <span class="text-danger">*</span></label>
+              <input v-model="aluno.bairro" type="text" class="form-control" required />
+            </div>
+            <div class="col-sm-4">
+              <label class="form-label small fw-semibold">Cidade <span class="text-danger">*</span></label>
+              <input v-model="aluno.cidade" type="text" class="form-control" required />
+            </div>
+            <div class="col-sm-4">
+              <label class="form-label small fw-semibold">Estado</label>
+              <select v-model="aluno.estado" class="form-select">
+                <option value="">Selecione</option>
+                <option v-for="uf in estados" :key="uf" :value="uf">{{ uf }}</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="row mt-3">
-        <div class="col-sm-9 form-group">
-          <label for="mae">NOME DA MÃE</label>
-          <input v-model="aluno.mae" type="text" class="form-control" id="mae" placeholder="Nome da Mãe" required/>
+      <!-- Contatos -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header">
+          <font-awesome-icon icon="fa-solid fa-phone" class="me-2 text-success" />Contatos
         </div>
-        <div class="col-sm-3 form-group">
-          <label for="cpf_mae">CPF DA MÃE</label>
-          <input v-mask="'###.###.###-##'" v-model="aluno.cpf_mae" type="text" class="form-control" id="cpf_mae" required placeholder="CPF da Mãe"/>
-        </div>
-      </div>
-
-      <div class="row mt-3">
-
-        <div class="col-sm form-group">
-          <label for="alergia">ALERGIA</label>
-          <input v-model="aluno.alergia" type="text" class="form-control" id="alergia" placeholder="ALERGIA"/>
-        </div>
-      </div>
-
-      <div class="row mt-3">
-        <div class="col-sm-6 form-group">
-
-          <label for="saude">Tem plano de saúde?</label>
-          <select v-model="aluno.saude" class="form-select" id="saude">
-            <option value="Não">Não</option>
-            <option value="Sim">Sim</option>
-          </select>
-
-          <label for="hospital">Em caso de problemas de saúde ou acidentes pode levar para o hospital público</label>
-          <select v-model="aluno.hospital" class="form-select" id="hospital">
-            <option value="Não">Não</option>
-            <option value="Sim">Sim</option>
-          </select>
-
-          <label  for="redes">A imagem da criança poderá ser usada nas redes sociais?</label>
-          <select v-model="aluno.redes" class="form-select" id="redes">
-            <option value="Não">Não</option>
-            <option value="Sim">Sim</option>
-          </select>
-
-          <label for="sozinho">O aluno(a)  poderá ir para casa sozinho?</label>
-          <select v-model="aluno.sozinho" class="form-select" id="sozinho">
-            <option value="Não">Não</option>
-            <option value="Sim">Sim</option>
-          </select>
-
-        </div>
-        <div class="col-sm-6 form-group">
-          <label for="obs">OBSERVAÇÕES</label>
-          <textarea v-model="aluno.obs" class="form-control" id="obs">
-          </textarea>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-sm-3">
+              <label class="form-label small fw-semibold">Telefone 1 <span class="text-danger">*</span></label>
+              <input v-mask="'(##) #####-####'" v-model="aluno.telefone1" type="text" class="form-control" required />
+            </div>
+            <div class="col-sm-3">
+              <label class="form-label small fw-semibold">Telefone 2</label>
+              <input v-mask="'(##) #####-####'" v-model="aluno.telefone2" type="text" class="form-control" />
+            </div>
+            <div class="col-sm-3">
+              <label class="form-label small fw-semibold">Telefone 3</label>
+              <input v-mask="'(##) #####-####'" v-model="aluno.telefone3" type="text" class="form-control" />
+            </div>
+            <div class="col-sm-3">
+              <label class="form-label small fw-semibold">E-mail</label>
+              <input v-model="aluno.email" type="email" class="form-control" />
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="row mt-3">
-        <div class="col-sm-6 form-group">
-          <input id="foto" class="d-none" type="text" name="foto">
+      <!-- Filiação -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header">
+          <font-awesome-icon icon="fa-solid fa-users" class="me-2 text-success" />Filiação
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-sm-9">
+              <label class="form-label small fw-semibold">Nome do Pai</label>
+              <input v-model="aluno.pai" type="text" class="form-control" />
+            </div>
+            <div class="col-sm-3">
+              <label class="form-label small fw-semibold">CPF do Pai</label>
+              <input v-mask="'###.###.###-##'" v-model="aluno.cpf_pai" type="text" class="form-control" />
+            </div>
+            <div class="col-sm-9">
+              <label class="form-label small fw-semibold">Nome da Mãe <span class="text-danger">*</span></label>
+              <input v-model="aluno.mae" type="text" class="form-control" required />
+            </div>
+            <div class="col-sm-3">
+              <label class="form-label small fw-semibold">CPF da Mãe <span class="text-danger">*</span></label>
+              <input v-mask="'###.###.###-##'" v-model="aluno.cpf_mae" type="text" class="form-control" required />
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="row mt-3">
-        <div class="col-sm form-group d-flex justify-content-end">
-          <button class="btn btn-success">Salvar</button>
+      <!-- Saúde e Observações -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header">
+          <font-awesome-icon icon="fa-solid fa-heart-pulse" class="me-2 text-success" />Saúde e Observações
         </div>
-
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label small fw-semibold">Alergias</label>
+                  <input v-model="aluno.alergia" type="text" class="form-control" />
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label small fw-semibold">Tem plano de saúde?</label>
+                  <select v-model="aluno.saude" class="form-select">
+                    <option value="Não">Não</option><option value="Sim">Sim</option>
+                  </select>
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label small fw-semibold">Hospital público?</label>
+                  <select v-model="aluno.hospital" class="form-select">
+                    <option value="Não">Não</option><option value="Sim">Sim</option>
+                  </select>
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label small fw-semibold">Imagem nas redes?</label>
+                  <select v-model="aluno.redes" class="form-select">
+                    <option value="Não">Não</option><option value="Sim">Sim</option>
+                  </select>
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label small fw-semibold">Vai sozinho para casa?</label>
+                  <select v-model="aluno.sozinho" class="form-select">
+                    <option value="Não">Não</option><option value="Sim">Sim</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label small fw-semibold">Observações</label>
+              <textarea v-model="aluno.obs" class="form-control" rows="7"></textarea>
+            </div>
+          </div>
+        </div>
       </div>
 
-      </form>
-    </div>
-    </div>
+      <!-- Ações -->
+      <div class="d-flex justify-content-end gap-2 mb-3">
+        <RouterLink :to="`/aluno/ficha/${aluno.id}`" class="btn btn-outline-secondary">Cancelar</RouterLink>
+        <button type="submit" class="btn btn-success px-4">
+          <font-awesome-icon icon="fa-solid fa-floppy-disk" class="me-2" />Salvar Alterações
+        </button>
+      </div>
+
+    </form>
   </div>
 </template>
-
-<style scoped>
-
-</style>

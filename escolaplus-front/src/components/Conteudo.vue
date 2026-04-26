@@ -1,28 +1,36 @@
 <script setup>
-
 import Menu from "@/components/Menu.vue";
-import {RouterView} from "vue-router";
-import {getUser} from "@/services/token.js";
+import { RouterView } from "vue-router";
+import { getUser } from "@/services/token.js";
 
 const user = getUser();
-
 </script>
 
 <template>
-  <div class="row p-0 m-0" v-if="user">
-    <div class="col-sm-2 p-0">
-      <Menu v-if="user"></Menu>
+  <div class="d-flex" v-if="user">
+    <div class="ep-sidebar-wrapper">
+      <Menu></Menu>
     </div>
-    <div class="col-sm-10 p-3">
-      <RouterView/>
-    </div>
+    <main class="ep-content flex-grow-1">
+      <RouterView />
+    </main>
   </div>
 
   <div v-if="!user">
-    <RouterView/>
+    <RouterView />
   </div>
 </template>
 
 <style scoped>
+.ep-sidebar-wrapper {
+  width: var(--ep-sidebar-w, 220px);
+  flex-shrink: 0;
+}
 
+.ep-content {
+  min-width: 0;
+  padding: 1.25rem 1.5rem;
+  background: var(--ep-bg, #f3f6f9);
+  min-height: calc(100vh - var(--ep-navbar-h, 52px));
+}
 </style>
