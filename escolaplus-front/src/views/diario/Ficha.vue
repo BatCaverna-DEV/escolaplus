@@ -87,13 +87,21 @@ async function carregarNotas() {
 
 // Salva ao tirar foco do campo de valor
 async function onBlurNota(nota) {
-  const novo = parsearNota(nota._display)
-  if (novo === null || isNaN(novo) || novo < 0 || novo > 10) {
-    nota._display = formatarNota(nota.valor)   // reverte para valor anterior
+  const vazio = nota._display === '' || nota._display === null || nota._display === undefined
+  const novo  = vazio ? null : parsearNota(nota._display)
+
+  // Valor inválido (não vazio, mas fora do intervalo 0–10)
+  if (!vazio && (isNaN(novo) || novo < 0 || novo > 10)) {
+    nota._display = formatarNota(nota.valor)
     return
   }
-  if (novo === parseFloat(nota.valor)) {
-    nota._display = formatarNota(nota.valor)   // garante formato mesmo sem alteração
+
+  // Sem alteração
+  const semMudanca = vazio
+    ? (nota.valor === null || nota.valor === '')
+    : novo === parseFloat(nota.valor)
+  if (semMudanca) {
+    nota._display = formatarNota(nota.valor)
     return
   }
 
