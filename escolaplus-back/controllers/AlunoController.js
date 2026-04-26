@@ -200,6 +200,26 @@ class AlunoController {
         }
     }
 
+    // GET /aluno/eu — aluno autenticado consulta o próprio perfil
+    eu = async (req, res) => {
+        const { userId } = req
+        try {
+            const aluno = await Aluno.findOne({
+                where: { usuario_id: userId },
+                include: [{
+                    model: Matricula,
+                    as: 'matriculas',
+                    required: false,
+                    include: [{ model: Turma, as: 'turma' }]
+                }]
+            })
+            if (!aluno) return res.status(404).json({ message: 'Aluno não encontrado' })
+            return res.status(200).json(aluno)
+        } catch(err) {
+            return res.status(400).json({ message: err.message })
+        }
+    }
+
 }//Fim da Classe
 
 export default new AlunoController();
