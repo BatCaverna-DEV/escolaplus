@@ -98,11 +98,10 @@ class FuncionarioController {
     // PUT /editar — professor só pode editar o próprio registro
     editar = async function (req, res) {
         const id = req.body.id;
-        const { userId, categoria: cat } = req
+        const { funcionarioId, categoria: cat } = req
         try{
             if (Number(cat) === 2) { // PROFESSOR
-                const proprio = await Funcionario.findOne({ where: { usuario_id: userId } })
-                if (!proprio || proprio.id !== id) {
+                if (funcionarioId !== id) {
                     return res.status(403).json({ message: 'Você só pode editar seu próprio cadastro' })
                 }
             }
