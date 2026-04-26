@@ -17,8 +17,6 @@ export function categoriaFuncionario(categoria){
     if(categoria == 1){
         return 'Admin'
     }else if(categoria == 2){
-        return 'Secretaria'
-    }else if(categoria == 3){
         return 'Docente'
     }else{
         return 'Discente'
