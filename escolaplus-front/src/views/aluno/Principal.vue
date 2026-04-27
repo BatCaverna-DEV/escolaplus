@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { apiFetch } from "@/services/http.js";
 import { dataBrasil, statusAluno } from "@/services/format.js";
 
@@ -7,46 +7,29 @@ const alunos     = ref([])
 const buscar     = ref('')
 const carregando = ref(false)
 
-onMounted(async () => {
+onMounted(() => listar())
+
+async function listar(chave = '') {
   carregando.value = true
-  await inicializacao()
-  carregando.value = false
+  try {
+    const termo = chave.trim() || 'todos'
+    const r = await apiFetch('/aluno/listar/' + encodeURIComponent(termo))
+    if (r.ok) alunos.value = await r.json()
+  } finally {
+    carregando.value = false
+  }
+}
+
+let debounce = null
+watch(buscar, val => {
+  clearTimeout(debounce)
+  debounce = setTimeout(() => listar(val), 400)
 })
-
-async function inicializacao() {
-  try {
-    const resposta = await apiFetch('/aluno/buscar', {
-      method: 'POST',
-      body: { chave: '', status: 1 }
-    })
-    if (resposta.status === 200) alunos.value = await resposta.json()
-    else alert(resposta.message)
-  } catch (error) {
-    alert(error.message)
-  }
-}
-
-async function listar() {
-  try {
-    carregando.value = true
-    const resposta = await apiFetch('/aluno/listar/' + buscar.value)
-    if (resposta.ok) {
-      alunos.value     = await resposta.json()
-      carregando.value = false
-    } else {
-      const msg = await resposta.json()
-      alert(resposta.status + ' - ' + msg.message)
-      carregando.value = false
-    }
-  } catch (error) {
-    alert(error.message)
-  }
-}
 </script>
 
 <template>
   <div>
-    <!-- Cabeçalho da página -->
+    <!-- Cabeçalho -->
     <div class="page-header">
       <h4 class="page-title">
         <font-awesome-icon icon="fas fa-user-graduate" class="me-2 text-success" />Alunos
@@ -64,22 +47,15 @@ async function listar() {
     <!-- Filtro -->
     <div class="card border-0 shadow-sm mb-3">
       <div class="card-body py-2">
-        <form @submit.prevent="listar" class="d-flex align-items-end gap-2">
-          <div class="flex-grow-1">
-            <label for="busca" class="form-label small fw-semibold mb-1">Buscar por nome</label>
-            <div class="input-group input-group-sm">
-              <span class="input-group-text bg-white">
-                <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="text-muted" />
-              </span>
-              <input v-model="buscar" type="text" id="busca" class="form-control" placeholder="Nome do aluno…" />
-            </div>
-          </div>
-          <div>
-            <button type="submit" class="btn btn-primary btn-sm">
-              <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="me-1" />Buscar
-            </button>
-          </div>
-        </form>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-white">
+            <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="text-muted" />
+          </span>
+          <input v-model="buscar" type="text" class="form-control" placeholder="Filtrar por nome…" />
+          <button v-if="buscar" class="btn btn-outline-secondary" @click="buscar = ''">
+            <font-awesome-icon icon="fa-solid fa-xmark" />
+          </button>
+        </div>
       </div>
     </div>
 
