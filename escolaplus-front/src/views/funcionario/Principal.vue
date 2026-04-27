@@ -3,8 +3,9 @@ import { ref, onMounted } from "vue";
 import { apiFetch } from "@/services/http.js";
 import { categoriaFuncionario, statusPadrao } from "@/services/format.js";
 
-const funcionarios = ref([])
-const buscar       = ref('')
+const funcionarios    = ref([])
+const buscar          = ref('')
+const filtroCategoria = ref('')
 
 onMounted(async () => { await listar() })
 
@@ -14,10 +15,13 @@ async function listar() {
 }
 
 function filtrar() {
-  if (!buscar.value) return funcionarios.value
-  return funcionarios.value.filter(f =>
-    f.nome.toLowerCase().includes(buscar.value.toLowerCase())
-  )
+  return funcionarios.value.filter(f => {
+    const nomeOk = !buscar.value ||
+      f.nome.toLowerCase().includes(buscar.value.toLowerCase())
+    const catOk = !filtroCategoria.value ||
+      String(f?.usuario?.categoria) === filtroCategoria.value
+    return nomeOk && catOk
+  })
 }
 </script>
 
@@ -41,8 +45,8 @@ function filtrar() {
     <!-- Filtro -->
     <div class="card border-0 shadow-sm mb-3">
       <div class="card-body py-2">
-        <div class="d-flex align-items-end gap-2">
-          <div class="flex-grow-1">
+        <div class="row g-2 align-items-end">
+          <div class="col-sm-6 col-lg-5">
             <label class="form-label small fw-semibold mb-1">Buscar por nome</label>
             <div class="input-group input-group-sm">
               <span class="input-group-text bg-white">
@@ -50,6 +54,24 @@ function filtrar() {
               </span>
               <input v-model="buscar" type="text" class="form-control" placeholder="Nome do funcionário…" />
             </div>
+          </div>
+          <div class="col-sm-4 col-lg-3">
+            <label class="form-label small fw-semibold mb-1">Tipo</label>
+            <select v-model="filtroCategoria" class="form-select form-select-sm">
+              <option value="">Todos</option>
+              <option value="1">Secretaria</option>
+              <option value="2">Professor</option>
+              <option value="3">Aluno</option>
+            </select>
+          </div>
+          <div class="col-auto">
+            <button
+              v-if="buscar || filtroCategoria"
+              class="btn btn-sm btn-outline-secondary"
+              @click="buscar = ''; filtroCategoria = ''"
+            >
+              <font-awesome-icon icon="fa-solid fa-xmark" class="me-1" />Limpar
+            </button>
           </div>
         </div>
       </div>

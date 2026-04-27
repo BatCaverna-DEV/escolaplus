@@ -14,13 +14,10 @@ export function statusAluno(status){
 }
 
 export function categoriaFuncionario(categoria){
-    if(categoria == 1){
-        return 'Admin'
-    }else if(categoria == 2){
-        return 'Docente'
-    }else{
-        return 'Discente'
-    }
+    if(categoria == 1)      return 'Secretaria'
+    else if(categoria == 2) return 'Professor'
+    else if(categoria == 3) return 'Aluno'
+    else                    return '—'
 }
 
 export function statusMatricula(status){
