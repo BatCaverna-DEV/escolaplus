@@ -1,6 +1,6 @@
 <script setup>
 import { apiFetch } from "@/services/http.js";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { categoriaFuncionario, statusPadrao } from "@/services/format.js";
 import { getUser } from "@/services/token.js";
@@ -12,8 +12,6 @@ const salvando    = ref(false);
 const user        = getUser()
 const msg         = ref({ texto: '', tipo: 'warning' })
 const aba         = ref('dados')
-
-const ehProfessor = computed(() => Number(funcionario.value?.usuario?.categoria) === 2)
 
 onMounted(async () => { await carregar() })
 
@@ -181,7 +179,7 @@ async function criarDiario() {
           <font-awesome-icon icon="fa-solid fa-shield-halved" class="me-1" />Acesso
         </button>
       </li>
-      <li class="nav-item" v-if="ehProfessor">
+      <li class="nav-item">
         <button class="nav-link" :class="{ active: aba === 'diarios' }" @click="abrirAba('diarios')">
           <font-awesome-icon icon="fa-solid fa-book-open" class="me-1" />Diários
           <span class="badge bg-secondary rounded-pill ms-1">{{ diarios.length || '' }}</span>
