@@ -3,27 +3,43 @@ import { ref, onMounted, watch } from "vue";
 import { apiFetch } from "@/services/http.js";
 import { dataBrasil, statusAluno } from "@/services/format.js";
 
-const alunos     = ref([])
-const buscar     = ref('')
-const carregando = ref(false)
+const LIMITE      = 30
+const alunos      = ref([])
+const total       = ref(0)
+const offset      = ref(0)
+const buscar      = ref('')
+const carregando  = ref(false)
+const carregandoMais = ref(false)
 
-onMounted(() => listar())
+onMounted(() => listar(true))
 
-async function listar(chave = '') {
-  carregando.value = true
+async function listar(resetar = true) {
+  if (resetar) {
+    offset.value = 0
+    alunos.value = []
+    carregando.value = true
+  } else {
+    carregandoMais.value = true
+  }
   try {
-    const termo = chave.trim() || 'todos'
-    const r = await apiFetch('/aluno/listar/' + encodeURIComponent(termo))
-    if (r.ok) alunos.value = await r.json()
+    const termo = buscar.value.trim() || 'todos'
+    const r = await apiFetch(`/aluno/listar/${encodeURIComponent(termo)}?limit=${LIMITE}&offset=${offset.value}`)
+    if (r.ok) {
+      const { alunos: novos, total: tot } = await r.json()
+      alunos.value = resetar ? novos : [...alunos.value, ...novos]
+      total.value  = tot
+      offset.value = alunos.value.length
+    }
   } finally {
-    carregando.value = false
+    carregando.value     = false
+    carregandoMais.value = false
   }
 }
 
 let debounce = null
-watch(buscar, val => {
+watch(buscar, () => {
   clearTimeout(debounce)
-  debounce = setTimeout(() => listar(val), 400)
+  debounce = setTimeout(() => listar(true), 400)
 })
 </script>
 
@@ -59,7 +75,7 @@ watch(buscar, val => {
       </div>
     </div>
 
-    <!-- Spinner -->
+    <!-- Spinner inicial -->
     <div v-if="carregando" class="text-center py-5">
       <div class="spinner-border text-success" role="status"></div>
       <p class="text-muted mt-2 small">Carregando alunos…</p>
@@ -111,6 +127,23 @@ watch(buscar, val => {
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Rodapé -->
+      <div v-if="alunos.length > 0" class="card-footer d-flex align-items-center justify-content-between py-2">
+        <span class="text-muted small">{{ alunos.length }} de {{ total }} aluno{{ total !== 1 ? 's' : '' }}</span>
+        <button v-if="alunos.length < total"
+          class="btn btn-sm btn-outline-success"
+          :disabled="carregandoMais"
+          @click="listar(false)">
+          <span v-if="carregandoMais">
+            <span class="spinner-border spinner-border-sm me-1"></span>Carregando…
+          </span>
+          <span v-else>
+            <font-awesome-icon icon="fa-solid fa-angles-down" class="me-1" />
+            Carregar mais {{ Math.min(LIMITE, total - alunos.length) }}
+          </span>
+        </button>
       </div>
     </div>
   </div>

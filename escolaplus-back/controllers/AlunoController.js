@@ -61,26 +61,31 @@ class AlunoController {
 
     listar = async function (req, res) {
         try{
-            const busca = req.params.busca
+            const busca  = req.params.busca
+            const limit  = Math.min(Number(req.query.limit)  || 30, 100)
+            const offset = Number(req.query.offset) || 0
 
-            // Configurar filtro de busca
-            const whereClause = busca && busca !== 'todos'
+            const where = busca && busca !== 'todos'
                 ? { nome: { [Op.like]: `%${busca}%` } }
-                : {};
+                : {}
 
-            const alunos = await Aluno.findAll({
-                where: whereClause,
-                include:[{
-                    model: Usuario,
-                    as: 'usuario'
-                },{
-                    model: Matricula,
-                    as: 'matriculas',
-                    required: false
-                }],
-                order:[['nome','ASC']]
-            })
-            return res.status(200).json(alunos)
+            // Pagina pelos IDs primeiro para evitar distorção do LIMIT pelo JOIN hasMany
+            const [total, idRows] = await Promise.all([
+                Aluno.count({ where }),
+                Aluno.findAll({ where, attributes: ['id'], order: [['nome', 'ASC']], limit, offset }),
+            ])
+            const ids = idRows.map(a => a.id)
+
+            const alunos = ids.length ? await Aluno.findAll({
+                where: { id: { [Op.in]: ids } },
+                include: [
+                    { model: Usuario,   as: 'usuario',    required: false },
+                    { model: Matricula, as: 'matriculas', required: false },
+                ],
+                order: [['nome', 'ASC']],
+            }) : []
+
+            return res.status(200).json({ alunos, total })
         }catch(err){
             return res.status(500).send(err);
         }
