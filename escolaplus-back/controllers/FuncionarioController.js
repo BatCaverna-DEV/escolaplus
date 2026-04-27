@@ -67,8 +67,13 @@ class FuncionarioController {
                 include:{
                     model: Usuario,
                     as: 'usuario',
-                    where: { categoria: { [Op.ne]: 3 } },  // exclui alunos
-                    required: true,
+                    required: false,
+                },
+                where: {
+                    [Op.or]: [
+                        { '$usuario.categoria$': { [Op.ne]: 3 } },
+                        { '$usuario.id$': null },
+                    ]
                 }
             });
             return res.status(200).json(funcionarios);
