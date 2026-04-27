@@ -1,5 +1,6 @@
 import Funcionario from "../models/Funcionario.js";
 import Usuario from "../models/Usuario.js";
+import { Op } from "sequelize";
 import {semfoto} from "../helpers/foto.js";
 import bcrypt from "bcrypt";
 import {enviarMensagem} from "../helpers/email.js";
@@ -65,12 +66,14 @@ class FuncionarioController {
                 order:[['nome', 'ASC']],
                 include:{
                     model: Usuario,
-                    as: 'usuario'
+                    as: 'usuario',
+                    where: { categoria: { [Op.ne]: 3 } },  // exclui alunos
+                    required: true,
                 }
             });
             return res.status(200).json(funcionarios);
         }catch(err){
-            return res.status(500).json(error);
+            return res.status(500).json(err);
         }
     }
 

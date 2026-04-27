@@ -61,7 +61,6 @@ function filtrar() {
               <option value="">Todos</option>
               <option value="1">Secretaria</option>
               <option value="2">Professor</option>
-              <option value="3">Aluno</option>
             </select>
           </div>
           <div class="col-auto">
