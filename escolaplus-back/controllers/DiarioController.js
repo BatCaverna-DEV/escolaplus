@@ -14,6 +14,43 @@ class DiarioController {
         return !!(diario && diario.funcionario_id === funcionarioId)
     }
 
+    // GET /listar?funcionario_id=X
+    listar = async (req, res) => {
+        const { funcionario_id } = req.query
+        try {
+            const where = funcionario_id ? { funcionario_id } : {}
+            const diarios = await Diario.findAll({
+                where,
+                include: [
+                    { model: Turma,       as: 'turma'    },
+                    { model: Funcionario, as: 'professor' },
+                ],
+                order: [['descricao', 'ASC']]
+            })
+            return res.status(200).json(diarios)
+        } catch(err) {
+            return res.status(400).json({ message: err.message })
+        }
+    }
+
+    // POST /criar
+    criar = async (req, res) => {
+        const { descricao, status, funcionario_id, turma_id } = req.body
+        try {
+            const diario = await Diario.create({ descricao, status: status ?? 1, funcionario_id, turma_id })
+            const resultado = await Diario.findOne({
+                where: { id: diario.id },
+                include: [
+                    { model: Turma,       as: 'turma'    },
+                    { model: Funcionario, as: 'professor' },
+                ]
+            })
+            return res.status(200).json(resultado)
+        } catch(err) {
+            return res.status(400).json({ message: err.message })
+        }
+    }
+
     // GET /get/:id
     get = async (req, res) => {
         const id = req.params.id
