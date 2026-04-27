@@ -147,15 +147,17 @@ function flash(msg, tipo) {
 onMounted(async () => {
   carregando.value = true
   try {
-    const [r1, r2] = await Promise.all([
-      apiFetch(`/diario/get/${id}`),
-      apiFetch('/funcionario/listar'),
-    ])
-    if (r1.ok) diario.value       = await r1.json()
-    if (r2.ok) funcionarios.value = await r2.json()
+    const r = await apiFetch(`/diario/get/${id}`)
+    if (r.ok) diario.value = await r.json()
   } finally {
     carregando.value = false
   }
+
+  // carrega funcionários para o select de edição (falha silenciosa)
+  apiFetch('/funcionario/listar').then(r => {
+    if (r.ok) r.json().then(lista => { funcionarios.value = lista })
+  }).catch(() => {})
+
   await carregarNotas()
 })
 </script>
