@@ -40,6 +40,20 @@ async function resetarSenha() {
   }
 }
 
+async function gerarUsuario() {
+  try {
+    salvando.value = true
+    const resposta = await apiFetch('/funcionario/gerar-usuario/' + funcionario.value.id, { method: 'POST' })
+    const dados    = await resposta.json()
+    msg.value      = { texto: dados.message, tipo: resposta.ok ? 'success' : 'danger' }
+    if (resposta.ok) await carregar()
+  } catch (err) {
+    msg.value = { texto: err.message, tipo: 'danger' }
+  } finally {
+    salvando.value = false
+  }
+}
+
 // ── Aba de Diários ────────────────────────────────────────────────
 const diarios           = ref([])
 const carregandoDiarios = ref(false)
@@ -107,7 +121,7 @@ async function vincularDiarios() {
         <font-awesome-icon icon="fa-solid fa-user-tie" class="me-2 text-success" />Ficha do Funcionário
       </h4>
       <div class="page-actions">
-        <button v-if="!salvando && funcionario.usuario_id !== user.usuario_id"
+        <button v-if="!salvando && funcionario.usuario_id && funcionario.usuario_id !== user.usuario_id"
           @click="resetarSenha" class="btn btn-sm btn-warning">
           <font-awesome-icon icon="fa-solid fa-key" class="me-1" />Resetar Acesso
         </button>
@@ -190,7 +204,23 @@ async function vincularDiarios() {
     <!-- Aba: Acesso -->
     <div v-if="aba === 'dados'" class="card border-0 shadow-sm rounded-top-0">
       <div class="card-body">
-        <div class="row g-3">
+
+        <!-- Sem usuário vinculado -->
+        <div v-if="!funcionario.usuario_id" class="text-center py-4">
+          <font-awesome-icon icon="fa-solid fa-user-slash" class="fs-2 text-muted opacity-50 mb-3 d-block" />
+          <p class="text-muted small mb-3">Este funcionário ainda não possui acesso ao sistema.</p>
+          <button class="btn btn-success" :disabled="salvando" @click="gerarUsuario">
+            <span v-if="salvando">
+              <span class="spinner-border spinner-border-sm me-1"></span>Gerando…
+            </span>
+            <span v-else>
+              <font-awesome-icon icon="fa-solid fa-user-plus" class="me-1" />Gerar Usuário
+            </span>
+          </button>
+        </div>
+
+        <!-- Com usuário vinculado -->
+        <div v-else class="row g-3">
           <div class="col-sm-3">
             <label class="form-label small fw-semibold text-muted">Usuário</label>
             <input type="text" :value="funcionario?.usuario?.username" disabled class="form-control" />
@@ -209,6 +239,7 @@ async function vincularDiarios() {
             </div>
           </div>
         </div>
+
       </div>
     </div>
 
