@@ -71,7 +71,9 @@ async function carregarNotas() {
   carregandoNotas.value = true
   try {
     const r    = await apiFetch(`/diario/notas/${id}`)
+    if (!r.ok) return
     const lista = await r.json()
+    if (!Array.isArray(lista)) return
     matriculas.value = lista.map(m => ({
       ...m,
       notas: m.notas.map(n => ({
@@ -144,13 +146,16 @@ function flash(msg, tipo) {
 // ── Montagem ──────────────────────────────────────────────────────
 onMounted(async () => {
   carregando.value = true
-  const [r1, r2] = await Promise.all([
-    apiFetch(`/diario/get/${id}`),
-    apiFetch('/funcionario/listar'),
-  ])
-  diario.value       = await r1.json()
-  funcionarios.value = await r2.json()
-  carregando.value   = false
+  try {
+    const [r1, r2] = await Promise.all([
+      apiFetch(`/diario/get/${id}`),
+      apiFetch('/funcionario/listar'),
+    ])
+    if (r1.ok) diario.value       = await r1.json()
+    if (r2.ok) funcionarios.value = await r2.json()
+  } finally {
+    carregando.value = false
+  }
   await carregarNotas()
 })
 </script>
