@@ -60,40 +60,39 @@ function abrirAba(nome) {
   if (nome === 'diarios') carregarDiarios()
 }
 
-// ── Modal novo diário ─────────────────────────────────────────────
-const modalAberto    = ref(false)
-const turmas         = ref([])
-const salvandoDiario = ref(false)
-const formDiario     = ref({ descricao: '', turma_id: '', status: 1 })
+// ── Modal vincular diários ────────────────────────────────────────
+const modalAberto       = ref(false)
+const diariosDisponiveis = ref([])
+const selecionados      = ref([])
+const salvandoDiario    = ref(false)
 
 async function abrirModal() {
-  formDiario.value = { descricao: '', turma_id: '', status: 1 }
-  modalAberto.value = true
-  if (turmas.value.length) return
-  const r1 = await apiFetch('/calendario/ativo')
-  if (r1.ok) {
-    const cal = await r1.json()
-    const r2  = await apiFetch(`/turma/listar/${cal.id}`)
-    if (r2.ok) turmas.value = await r2.json()
+  selecionados.value = []
+  modalAberto.value  = true
+  const r = await apiFetch('/diario/listar')
+  if (r.ok) {
+    const todos = await r.json()
+    const jaVinculados = new Set(diarios.value.map(d => d.id))
+    diariosDisponiveis.value = todos.filter(d => d.status == 1 && !jaVinculados.has(d.id))
   }
 }
 
-async function criarDiario() {
+async function vincularDiarios() {
+  if (!selecionados.value.length) return
   salvandoDiario.value = true
   try {
-    const r = await apiFetch('/diario/criar', {
-      method: 'POST',
-      body: { ...formDiario.value, funcionario_id: route.params.id },
-    })
-    if (r.ok) {
-      const novo = await r.json()
-      diarios.value.push(novo)
-      diarios.value.sort((a, b) => a.descricao.localeCompare(b.descricao))
-      modalAberto.value = false
-    } else {
-      const erro = await r.json()
-      alert(erro.message)
+    for (const d of selecionados.value) {
+      const r = await apiFetch('/diario/editar', {
+        method: 'PUT',
+        body: { id: d.id, descricao: d.descricao, status: d.status, funcionario_id: route.params.id },
+      })
+      if (r.ok) {
+        const atualizado = await r.json()
+        diarios.value.push(atualizado)
+      }
     }
+    diarios.value.sort((a, b) => a.descricao.localeCompare(b.descricao))
+    modalAberto.value = false
   } finally {
     salvandoDiario.value = false
   }
@@ -267,7 +266,7 @@ async function criarDiario() {
       </div>
     </div>
 
-    <!-- Modal: Novo Diário -->
+    <!-- Modal: Vincular Diários -->
     <template v-if="modalAberto">
       <div class="modal-backdrop fade show"></div>
       <div class="modal fade show d-block" tabindex="-1">
@@ -277,51 +276,42 @@ async function criarDiario() {
             <div class="modal-header border-0 pb-0">
               <h5 class="modal-title fw-bold">
                 <font-awesome-icon icon="fa-solid fa-book-open" class="me-2 text-success" />
-                Novo Diário
+                Adicionar Diários
               </h5>
               <button type="button" class="btn-close" @click="modalAberto = false"></button>
             </div>
 
-            <form @submit.prevent="criarDiario">
-              <div class="modal-body pt-2">
-                <div class="row g-3">
-                  <div class="col-12">
-                    <label class="form-label small fw-semibold">Professor</label>
-                    <input type="text" :value="funcionario.nome" disabled class="form-control" />
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label small fw-semibold">Turma <span class="text-danger">*</span></label>
-                    <select v-model="formDiario.turma_id" class="form-select" required>
-                      <option value="">Selecione uma turma…</option>
-                      <option v-for="t in turmas" :key="t.id" :value="t.id">{{ t.descricao }}</option>
-                    </select>
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label small fw-semibold">Descrição <span class="text-danger">*</span></label>
-                    <input v-model="formDiario.descricao" type="text" class="form-control" placeholder="Ex: Matemática, Português…" required />
-                  </div>
-                  <div class="col-sm-4">
-                    <label class="form-label small fw-semibold">Status</label>
-                    <select v-model="formDiario.status" class="form-select">
-                      <option :value="1">Ativo</option>
-                      <option :value="0">Inativo</option>
-                    </select>
-                  </div>
-                </div>
+            <div class="modal-body pt-2">
+              <p class="text-muted small mb-2">Selecione os diários ativos para vincular a <strong>{{ funcionario.nome }}</strong>:</p>
+
+              <div v-if="diariosDisponiveis.length === 0" class="text-center py-4 text-muted">
+                <font-awesome-icon icon="fa-solid fa-inbox" class="fs-3 d-block mx-auto mb-2 opacity-25" />
+                <p class="small mb-0">Nenhum diário ativo disponível para vincular</p>
               </div>
 
-              <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-outline-secondary" @click="modalAberto = false">Cancelar</button>
-                <button type="submit" class="btn btn-success px-4" :disabled="salvandoDiario">
-                  <span v-if="salvandoDiario">
-                    <span class="spinner-border spinner-border-sm me-1"></span>Salvando…
+              <div v-else class="list-group list-group-flush border rounded">
+                <label v-for="d in diariosDisponiveis" :key="d.id"
+                  class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2">
+                  <input type="checkbox" class="form-check-input m-0" :value="d" v-model="selecionados" />
+                  <span class="flex-grow-1">
+                    <span class="fw-semibold">{{ d.descricao }}</span>
+                    <span class="text-muted small ms-2">{{ d.turma?.descricao }}</span>
                   </span>
-                  <span v-else>
-                    <font-awesome-icon icon="fa-solid fa-floppy-disk" class="me-1" />Salvar
-                  </span>
-                </button>
+                </label>
               </div>
-            </form>
+            </div>
+
+            <div class="modal-footer border-0 pt-0">
+              <button type="button" class="btn btn-outline-secondary" @click="modalAberto = false">Cancelar</button>
+              <button class="btn btn-success px-4" :disabled="salvandoDiario || !selecionados.length" @click="vincularDiarios">
+                <span v-if="salvandoDiario">
+                  <span class="spinner-border spinner-border-sm me-1"></span>Salvando…
+                </span>
+                <span v-else>
+                  <font-awesome-icon icon="fa-solid fa-link" class="me-1" />Vincular {{ selecionados.length || '' }}
+                </span>
+              </button>
+            </div>
 
           </div>
         </div>
