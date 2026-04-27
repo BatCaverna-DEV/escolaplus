@@ -8,8 +8,6 @@ const sec   = [categoria.SECRETARIA]
 const prof  = [categoria.SECRETARIA, categoria.PROFESSOR]
 const todos = [categoria.SECRETARIA, categoria.PROFESSOR, categoria.ALUNO]
 
-router.get   ('/listar',     auth, allow(...sec),   Diario.listar)
-router.post  ('/criar',      auth, allow(...sec),   Diario.criar)
 router.get   ('/meus',       auth, allow(...todos), Diario.meus)       // professor: seus diários; aluno: suas turmas
 router.get   ('/boletim',    auth, allow(categoria.ALUNO), Diario.boletim)  // aluno: todas as notas
 router.get   ('/get/:id',    auth, allow(...todos), Diario.get)
