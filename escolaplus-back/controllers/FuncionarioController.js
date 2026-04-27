@@ -122,49 +122,6 @@ class FuncionarioController {
         }
     }
 
-    // POST /funcionario/gerar-usuario/:id — cria usuário para funcionário sem acesso
-    gerarUsuario = async (req, res) => {
-        const { id } = req.params
-        try {
-            const funcionario = await Funcionario.findByPk(id)
-            if (!funcionario) return res.status(404).json({ message: 'Funcionário não encontrado' })
-            if (funcionario.usuario_id) return res.status(400).json({ message: 'Funcionário já possui usuário vinculado' })
-
-            // Gera username: primeironome.ultimonome sem acentos
-            const PREP = new Set(['de','da','do','dos','das','e'])
-            const semAcento = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
-            const partes = funcionario.nome.trim().split(/\s+/).filter(p => !PREP.has(p.toLowerCase()))
-            const base   = `${semAcento(partes[0])}.${semAcento(partes[partes.length - 1])}`
-
-            // Resolve duplicatas
-            const existentes = await Usuario.findAll({ where: { username: { [Op.like]: `${base}%` } }, attributes: ['username'] })
-            const usados = new Set(existentes.map(u => u.username))
-            let username = base, n = 2
-            while (usados.has(username)) username = `${base}${n++}`
-
-            // Cria usuário com senha temporária
-            const senha    = Math.floor(100000 + Math.random() * 900000).toString()
-            const salt     = await bcrypt.genSalt(10)
-            const password = await bcrypt.hash(senha, salt)
-            const usuario  = await Usuario.create({ username, categoria: 2, status: 0, password })
-
-            await funcionario.update({ usuario_id: usuario.id })
-
-            // Tenta enviar e-mail (falha silenciosa)
-            try {
-                await enviarMensagem({
-                    to: funcionario.email,
-                    subject: 'Acesso criado - EscolaPlus',
-                    html: `Seu usuário é <strong>${username}</strong> e sua senha temporária é <strong>${senha}</strong>.`,
-                })
-            } catch (_) {}
-
-            return res.status(200).json({ message: `Usuário <strong>${username}</strong> criado. Senha temporária enviada para ${funcionario.email}.` })
-        } catch(err) {
-            return res.status(400).json({ message: err.message })
-        }
-    }
-
     // GET /funcionario/eu — professor autenticado consulta o próprio perfil
     eu = async (req, res) => {
         const { userId } = req
