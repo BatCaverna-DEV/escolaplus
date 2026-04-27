@@ -26,6 +26,23 @@ async function carregar() {
   }
 }
 
+async function gerarUsuario() {
+  try {
+    salvando.value = true
+    const resposta = await apiFetch('/funcionario/gerar-usuario/' + funcionario.value.id, {
+      method: 'POST',
+      body: { categoria: novaCategoria.value },
+    })
+    const dados    = await resposta.json()
+    msg.value      = { texto: dados.message, tipo: resposta.ok ? 'success' : 'warning' }
+    await carregar()
+  } catch (err) {
+    msg.value = { texto: err.message, tipo: 'danger' }
+  } finally {
+    salvando.value = false
+  }
+}
+
 async function resetarSenha() {
   try {
     salvando.value = true
@@ -59,6 +76,8 @@ function abrirAba(nome) {
   aba.value = nome
   if (nome === 'diarios') carregarDiarios()
 }
+
+const novaCategoria = ref(1)
 
 // ── Modal vincular diários ────────────────────────────────────────
 const modalAberto       = ref(false)
@@ -107,7 +126,7 @@ async function vincularDiarios() {
         <font-awesome-icon icon="fa-solid fa-user-tie" class="me-2 text-success" />Ficha do Funcionário
       </h4>
       <div class="page-actions">
-        <button v-if="!salvando && funcionario.usuario_id !== user.usuario_id"
+        <button v-if="!salvando && funcionario.usuario_id && funcionario.usuario_id !== user.usuario_id"
           @click="resetarSenha" class="btn btn-sm btn-warning">
           <font-awesome-icon icon="fa-solid fa-key" class="me-1" />Resetar Acesso
         </button>
@@ -190,7 +209,36 @@ async function vincularDiarios() {
     <!-- Aba: Acesso -->
     <div v-if="aba === 'dados'" class="card border-0 shadow-sm rounded-top-0">
       <div class="card-body">
-        <div class="row g-3">
+
+        <!-- Sem usuário vinculado -->
+        <div v-if="!funcionario.usuario_id" class="py-3">
+          <div class="d-flex align-items-center gap-2 text-warning mb-3">
+            <font-awesome-icon icon="fa-solid fa-circle-exclamation" class="fs-5" />
+            <span class="small">Este funcionário ainda não possui acesso ao sistema.</span>
+          </div>
+          <div class="row g-3 align-items-end">
+            <div class="col-sm-3">
+              <label class="form-label small fw-semibold text-muted">Tipo de Usuário</label>
+              <select v-model="novaCategoria" class="form-select form-select-sm">
+                <option :value="1">Secretaria</option>
+                <option :value="2">Professor</option>
+              </select>
+            </div>
+            <div class="col-auto">
+              <button class="btn btn-success btn-sm" :disabled="salvando" @click="gerarUsuario">
+                <span v-if="salvando">
+                  <span class="spinner-border spinner-border-sm me-1"></span>Gerando…
+                </span>
+                <span v-else>
+                  <font-awesome-icon icon="fa-solid fa-user-plus" class="me-1" />Gerar Usuário
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Com usuário vinculado -->
+        <div v-else class="row g-3">
           <div class="col-sm-3">
             <label class="form-label small fw-semibold text-muted">Usuário</label>
             <input type="text" :value="funcionario?.usuario?.username" disabled class="form-control" />
@@ -209,6 +257,7 @@ async function vincularDiarios() {
             </div>
           </div>
         </div>
+
       </div>
     </div>
 

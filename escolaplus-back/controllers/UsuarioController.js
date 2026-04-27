@@ -97,12 +97,12 @@ class UsuarioController {
                 password: password,
                 status: 1
             })
-            // await enviarMensagem({
-            //     to: funcionario.email,
-            //     subject: 'Nova Senha - EscolaPlus',
-            //     text: 'Sua nova senha é '+senha+', altere-a quando acessar o EscolaPlus.',
-            //     html: `Sua nova senha é <strong>${senha}</strong>, altere-a quando acessar o EscolaPlus.`
-            // })
+            await enviarMensagem({
+                to: funcionario.email,
+                subject: 'Nova Senha - EscolaPlus',
+                text: 'Sua nova senha é '+senha+', altere-a quando acessar o EscolaPlus.',
+                html: `Sua nova senha é <strong>${senha}</strong>, altere-a quando acessar o EscolaPlus.`
+            })
             return res.status(200).json({message: 'Senha reenviada para o email: '+funcionario.email})
         }catch(err){
             return res.status(500).json({message: err.message})

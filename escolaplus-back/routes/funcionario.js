@@ -12,6 +12,9 @@ router.get ('/listar', auth, allow(...sec),  Funcionario.listar)
 router.get ('/get/:id',auth, allow(...prof), Funcionario.get)
 router.put ('/editar', auth, allow(...prof), Funcionario.editar)  // professor edita só o próprio
 
+// Gerar usuário para funcionário sem acesso
+router.post('/gerar-usuario/:id', auth, allow(...sec), Funcionario.gerarUsuario)
+
 // Professor autenticado consulta o próprio perfil
 router.get('/eu', auth, allow(categoria.PROFESSOR), Funcionario.eu)
 

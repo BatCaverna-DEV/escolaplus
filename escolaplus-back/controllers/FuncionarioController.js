@@ -122,6 +122,47 @@ class FuncionarioController {
         }
     }
 
+    // POST /funcionario/gerar-usuario/:id — cria usuário para funcionário sem acesso
+    gerarUsuario = async (req, res) => {
+        const id = req.params.id
+        const categoriaReq = Number(req.body.categoria)
+        if (![1, 2].includes(categoriaReq)) {
+            return res.status(400).json({ message: 'Tipo de usuário inválido. Use 1 (Secretaria) ou 2 (Professor).' })
+        }
+        try {
+            const funcionario = await Funcionario.findOne({
+                where: { id },
+                include: [{ model: Usuario, as: 'usuario' }]
+            })
+            if (!funcionario) return res.status(404).json({ message: 'Funcionário não encontrado' })
+            if (funcionario.usuario_id) return res.status(400).json({ message: 'Funcionário já possui usuário vinculado' })
+
+            const salt  = await bcrypt.genSalt(10)
+            const senha = Math.floor(100000 + Math.random() * 900000).toString()
+            const hash  = await bcrypt.hash(senha, salt)
+
+            const usuario = await Usuario.create({
+                username: funcionario.cpf.replace(/\D/g, ''),
+                categoria: categoriaReq,
+                status: 1,
+                password: hash,
+            })
+
+            await funcionario.update({ usuario_id: usuario.id })
+
+            await enviarMensagem({
+                to: funcionario.email,
+                subject: 'Acesso criado - EscolaPlus',
+                html: `<h4>Seu usuário foi criado. Senha temporária: <strong>${senha}</strong></h4>`,
+                text: `Seu usuário foi criado. Senha temporária: ${senha}`,
+            })
+
+            return res.status(200).json({ message: `Usuário criado e senha enviada para ${funcionario.email}` })
+        } catch (err) {
+            return res.status(500).json({ message: err.message })
+        }
+    }
+
     // GET /funcionario/eu — professor autenticado consulta o próprio perfil
     eu = async (req, res) => {
         const { userId } = req
