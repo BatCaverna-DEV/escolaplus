@@ -5,13 +5,15 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+package-lock.json
 
 # Diretórios de build ou cache
 dist/
 build/
 .cache/
 
-# PM2 logs
+# PM2
 .pids
 *.pid
 *.seed
@@ -21,25 +23,28 @@ build/
 # Ambiente (.env)
 # -------------------------------------
 .env
-.env.test
-.env.production
-.env.development.local
-.env.local
+.env.*
+!.env.example
 
 # -------------------------------------
-# Logs da aplicação
+# Logs
 # -------------------------------------
 logs/
 *.log
 log.txt
-debug.log
-error.log
+
+# -------------------------------------
+# Puppeteer / PDFs gerados
+# -------------------------------------
+*.pdf
+puppeteer_dev_chrome_profile-*/
 
 # -------------------------------------
 # Sistema operacional
 # -------------------------------------
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # -------------------------------------
 # IDEs e editores
@@ -50,13 +55,12 @@ Thumbs.db
 *.swo
 
 # -------------------------------------
-# Sequelize (caso use)
+# Sequelize
 # -------------------------------------
 /migrations/*.js~
 /models/*.js~
 /seeders/*.js~
 .sequelize-auto/
-
 /config/config.json
 
 # -------------------------------------
@@ -70,8 +74,3 @@ coverage/
 # -------------------------------------
 *.tmp
 *.temp
-
-# -------------------------------------
-# Outros
-# -------------------------------------
-lib-cov
