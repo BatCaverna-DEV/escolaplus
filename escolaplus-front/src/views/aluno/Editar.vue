@@ -184,11 +184,11 @@ async function buscarCep() {
             </div>
             <div class="col-sm-9">
               <label class="form-label small fw-semibold">Nome da Mãe <span class="text-danger">*</span></label>
-              <input v-model="aluno.mae" type="text" class="form-control" required />
+              <input v-model="aluno.mae" type="text" class="form-control" />
             </div>
             <div class="col-sm-3">
               <label class="form-label small fw-semibold">CPF da Mãe <span class="text-danger">*</span></label>
-              <input v-mask="'###.###.###-##'" v-model="aluno.cpf_mae" type="text" class="form-control" required />
+              <input v-mask="'###.###.###-##'" v-model="aluno.cpf_mae" type="text" class="form-control" />
             </div>
           </div>
         </div>
