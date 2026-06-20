@@ -8,6 +8,7 @@ import {semfoto} from "../helpers/foto.js";
 import {gerarMatricula} from "../helpers/matricula.js";
 import Matricula from "../models/Matricula.js";
 import {Op} from "sequelize";
+import banco from '../config/banco.js';
 
 
 class AlunoController {
@@ -204,6 +205,82 @@ class AlunoController {
             return res.status(200).json(aluno_alterado)
         }catch(err){
             return res.status(400).json(err);
+        }
+    }
+
+    transferir = async function (req, res) {
+        const { matricula_id, nova_turma_id } = req.body
+
+        if (!matricula_id || !nova_turma_id) {
+            return res.status(400).json({ message: 'matricula_id e nova_turma_id são obrigatórios' })
+        }
+
+        const t = await banco.sequelize.transaction()
+        try {
+            const matricula = await Matricula.findByPk(matricula_id, { transaction: t })
+            if (!matricula) {
+                await t.rollback()
+                return res.status(404).json({ message: 'Matrícula não encontrada' })
+            }
+
+            const novaTurma = await Turma.findByPk(nova_turma_id, { transaction: t })
+            if (!novaTurma) {
+                await t.rollback()
+                return res.status(404).json({ message: 'Turma não encontrada' })
+            }
+
+            const calendario = await Calendario.findOne({ where: { status: 1 }, transaction: t })
+            if (!calendario) {
+                await t.rollback()
+                return res.status(404).json({ message: 'Nenhum calendário ativo encontrado' })
+            }
+
+            // Remove todas as notas da matrícula
+            await Nota.destroy({ where: { matricula_id }, transaction: t })
+
+            // Atualiza a turma da matrícula
+            await matricula.update({ turma_id: nova_turma_id }, { transaction: t })
+
+            // Busca os diários da nova turma
+            const diarios = await Diario.findAll({ where: { turma_id: nova_turma_id }, transaction: t })
+
+            // Recria as notas para cada diário da nova turma
+            for (const diario of diarios) {
+                let cont  = 1
+                let ordem = 1
+                for (let i = 0; i < calendario.etapas; i++) {
+                    for (let j = 0; j < calendario.notas; j++) {
+                        await Nota.create({
+                            descricao: 'N' + cont,
+                            matricula_id,
+                            diario_id: diario.id,
+                            semestre: i + 1,
+                            ordem: ordem++,
+                        }, { transaction: t })
+                        cont++
+                    }
+                    await Nota.create({
+                        descricao: 'Rec' + (i + 1),
+                        matricula_id,
+                        diario_id: diario.id,
+                        semestre: i + 1,
+                        ordem: ordem++,
+                    }, { transaction: t })
+                }
+                await Nota.create({
+                    descricao: 'Final',
+                    matricula_id,
+                    diario_id: diario.id,
+                    semestre: calendario.etapas,
+                    ordem: ordem++,
+                }, { transaction: t })
+            }
+
+            await t.commit()
+            return res.status(200).json({ message: 'Turma alterada com sucesso!' })
+        } catch (err) {
+            await t.rollback()
+            return res.status(500).json({ message: err.message })
         }
     }
 

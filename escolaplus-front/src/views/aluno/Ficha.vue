@@ -12,9 +12,59 @@ const aluno  = ref({})
 const mostrarModalMatricula = ref(false)
 const alunoSelecionado      = ref(null)
 
+// Transferência de turma
+const mostrarModalTransferir  = ref(false)
+const matriculaSelecionada    = ref(null)
+const turmas                  = ref([])
+const novaTurmaId             = ref('')
+const salvandoTransferencia   = ref(false)
+
 function abrirMatricula(a) {
   alunoSelecionado.value      = a
   mostrarModalMatricula.value = true
+}
+
+async function abrirTransferir(m) {
+  matriculaSelecionada.value  = m
+  novaTurmaId.value           = m.turma_id
+  mostrarModalTransferir.value = true
+  if (!turmas.value.length) {
+    const r1 = await apiFetch('/calendario/ativo')
+    if (r1.status === 200) {
+      const cal = await r1.json()
+      const r2  = await apiFetch(`/turma/listar/${cal.id}`)
+      turmas.value = await r2.json()
+    }
+  }
+}
+
+async function salvarTransferencia() {
+  if (!novaTurmaId.value) return
+  const confirmado = confirm(
+    `Atenção: todas as notas da matrícula atual serão excluídas e recriadas para a nova turma.\n\nDeseja continuar?`
+  )
+  if (!confirmado) return
+
+  salvandoTransferencia.value = true
+  try {
+    const r = await apiFetch('/aluno/transferir', {
+      method: 'PUT',
+      body: { matricula_id: matriculaSelecionada.value.id, nova_turma_id: novaTurmaId.value }
+    })
+    const dados = await r.json()
+    if (r.ok) {
+      alert(dados.message)
+      mostrarModalTransferir.value = false
+      const resposta = await apiFetch('/aluno/get/' + id)
+      aluno.value = await resposta.json()
+    } else {
+      alert(`Erro: ${dados.message}`)
+    }
+  } catch (e) {
+    alert(e.message)
+  } finally {
+    salvandoTransferencia.value = false
+  }
 }
 
 onMounted(async () => {
@@ -45,6 +95,43 @@ const baixar = async () => {
     :aluno="alunoSelecionado"
     @fechar="mostrarModalMatricula = false"
   />
+
+  <!-- Modal Alterar Turma -->
+  <template v-if="mostrarModalTransferir">
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">
+              <font-awesome-icon icon="fa-solid fa-right-left" class="me-2 text-warning" />
+              Alterar Turma
+            </h5>
+            <button type="button" class="btn-close" @click="mostrarModalTransferir = false"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-warning small mb-3">
+              <font-awesome-icon icon="fa-solid fa-triangle-exclamation" class="me-1" />
+              Todas as notas da matrícula <strong>{{ matriculaSelecionada?.matricula }}</strong> serão excluídas e recriadas para a nova turma.
+            </div>
+            <label class="form-label fw-semibold">Nova Turma</label>
+            <select class="form-select" v-model="novaTurmaId">
+              <option value="">Selecione uma turma…</option>
+              <option :value="t.id" v-for="t in turmas" :key="t.id">{{ t.descricao }}</option>
+            </select>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button class="btn btn-outline-secondary" @click="mostrarModalTransferir = false">Cancelar</button>
+            <button class="btn btn-warning px-4" @click="salvarTransferencia" :disabled="!novaTurmaId || salvandoTransferencia">
+              <span v-if="salvandoTransferencia" class="spinner-border spinner-border-sm me-1"></span>
+              <font-awesome-icon v-else icon="fa-solid fa-right-left" class="me-1" />
+              Confirmar Alteração
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
 
   <div>
     <!-- Cabeçalho -->
@@ -236,6 +323,7 @@ const baixar = async () => {
                     <th>Telefone</th>
                     <th>Turma</th>
                     <th>Status</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -251,9 +339,14 @@ const baixar = async () => {
                         {{ statusMatricula(m.status) }}
                       </span>
                     </td>
+                    <td>
+                      <button v-if="m.status == 1" class="btn btn-sm btn-outline-warning" @click="abrirTransferir(m)" title="Alterar Turma">
+                        <font-awesome-icon icon="fa-solid fa-right-left" />
+                      </button>
+                    </td>
                   </tr>
                   <tr v-if="!aluno.matriculas?.length">
-                    <td colspan="6" class="text-center text-muted py-4">Nenhuma matrícula encontrada</td>
+                    <td colspan="7" class="text-center text-muted py-4">Nenhuma matrícula encontrada</td>
                   </tr>
                 </tbody>
               </table>

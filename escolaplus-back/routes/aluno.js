@@ -13,6 +13,7 @@ router.post('/buscar',       auth, allow(...sec),  Aluno.buscar)
 router.get ('/get/:id',      auth, allow(...prof), Aluno.get)
 router.post('/matricular',   auth, allow(...sec),  Aluno.matricular)
 router.put ('/editar',       auth, allow(...sec),  Aluno.editar)
+router.put ('/transferir',   auth, allow(...sec),  Aluno.transferir)
 
 // Aluno autenticado consulta o próprio perfil
 router.get('/eu', auth, allow(categoria.ALUNO), Aluno.eu)
