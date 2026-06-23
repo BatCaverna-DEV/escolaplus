@@ -207,7 +207,7 @@ class ImpressaoController {
                         </div>               
                         <div style="width: 20%;">
                             <label style="display: block;">CPF DA MÃE</label>
-                            <input style="width: 98%;" type="text" value="635.526.698-98" id="${aluno.cpf_mae}">
+                            <input style="width: 98%;" type="text" value="${aluno.cpf_mae}" id="cpf_mae">
                         </div>           
                     </div>
             
