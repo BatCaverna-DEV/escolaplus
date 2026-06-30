@@ -87,6 +87,23 @@ const baixar = async () => {
   document.body.removeChild(a)
   window.URL.revokeObjectURL(url)
 }
+
+const baixarBoletim = async () => {
+  const res  = await fetch(
+    `${import.meta.env.VITE_API_BASE}/impressao/boletim/${aluno.value.id}`,
+    { headers: { Authorization: `Bearer ${localStorage.getItem("escola_token")}` } }
+  )
+  if (!res.ok) { alert('Erro ao gerar boletim'); return }
+  const blob = await res.blob()
+  const url  = window.URL.createObjectURL(blob)
+  const a    = document.createElement("a")
+  a.href     = url
+  a.download = "boletim-" + aluno.value.nome + ".pdf"
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  window.URL.revokeObjectURL(url)
+}
 </script>
 
 <template>
@@ -146,9 +163,9 @@ const baixar = async () => {
         <button v-if="aluno.status == 1" @click="baixar" class="btn btn-sm btn-outline-success">
           <font-awesome-icon icon="fa-solid fa-print" class="me-1" />Ficha PDF
         </button>
-        <RouterLink to="/aluno/principal" class="btn btn-sm btn-outline-secondary">
-          <font-awesome-icon icon="fa-solid fa-print" class="me-1" />Boletim
-        </RouterLink>
+        <button v-if="aluno.status == 1" @click="baixarBoletim" class="btn btn-sm btn-outline-primary">
+          <font-awesome-icon icon="fa-solid fa-graduation-cap" class="me-1" />Boletim
+        </button>
         <RouterLink :to="'/aluno/editar/' + aluno.id" class="btn btn-sm btn-primary">
           <font-awesome-icon icon="fa-solid fa-pen-to-square" class="me-1" />Editar
         </RouterLink>

@@ -5,6 +5,8 @@ import {dataBrasil} from "../helpers/format.js";
 import Matricula from "../models/Matricula.js";
 import Turma from "../models/Turma.js"
 import Calendario from "../models/Calendario.js"
+import Diario from "../models/Diario.js"
+import Nota from "../models/Nota.js"
 
 class ImpressaoController {
 
@@ -330,6 +332,258 @@ verso deste.
             if (browser) await browser.close();
         }
     }//Fim do Imprimir
+
+    boletim = async function (req, res) {
+        const escola = await Escola.findOne()
+        let browser;
+        try {
+            const id = req.params.id
+            const aluno = await Aluno.findByPk(id)
+            if (!aluno) return res.status(404).json({ erro: 'Aluno não encontrado' })
+
+            const matriculas = await Matricula.findAll({
+                where: { aluno_id: id, status: 1 },
+                include: [{ model: Turma, as: 'turma' }],
+            })
+
+            const turmasComDiarios = await Promise.all(matriculas.map(async m => {
+                const diarios = await Diario.findAll({ where: { turma_id: m.turma_id } })
+                const diariosComNotas = await Promise.all(diarios.map(async d => {
+                    const notas = await Nota.findAll({
+                        where: { diario_id: d.id, matricula_id: m.id },
+                        order: [['semestre', 'ASC'], ['ordem', 'ASC']]
+                    })
+                    // Calcula média de N1, N2, N3, N4 (descricao no padrão N seguido de dígito(s))
+                    const notasAvaliacao = notas.filter(n => /^N\d+$/.test(n.descricao) && n.valor !== null)
+                    const media = notasAvaliacao.length > 0
+                        ? notasAvaliacao.reduce((s, n) => s + parseFloat(n.valor), 0) / notasAvaliacao.length
+                        : null
+                    return { diario: d, notas, media }
+                }))
+                return { matricula: m, diarios: diariosComNotas }
+            }))
+
+            const formatarNota = v => v !== null && v !== undefined ? parseFloat(v).toFixed(1).replace('.', ',') : '-'
+
+            // Coleta todos os descricaos de notas distintos para montar colunas dinamicamente
+            const todasDescricoes = [...new Set(
+                turmasComDiarios.flatMap(t => t.diarios.flatMap(d => d.notas.map(n => n.descricao)))
+            )].sort((a, b) => {
+                const ordem = (s) => {
+                    const m = s.match(/^([A-Za-z]+)(\d*)$/)
+                    const prefixos = ['N', 'Rec', 'Final']
+                    const pi = prefixos.findIndex(p => m && m[1].toLowerCase() === p.toLowerCase())
+                    return [(pi >= 0 ? pi : 99), parseInt(m?.[2] || '0')]
+                }
+                const [pa, na] = ordem(a)
+                const [pb, nb] = ordem(b)
+                return pa !== pb ? pa - pb : na - nb
+            })
+
+            const gerarLinhasDiarios = (diarios) => diarios.map(({ diario, notas, media }) => {
+                const colunas = todasDescricoes.map(desc => {
+                    const nota = notas.find(n => n.descricao === desc)
+                    return `<td class="nota-cell">${nota ? formatarNota(nota.valor) : '-'}</td>`
+                }).join('')
+                const mediaStr = media !== null ? media.toFixed(1).replace('.', ',') : '-'
+                const aprovado = media !== null ? (media >= 7 ? 'APROVADO' : 'REPROVADO') : '-'
+                const corSit = media !== null ? (media >= 7 ? '#15803d' : '#b91c1c') : '#666'
+                return `
+                <tr>
+                    <td class="diario-name">${diario.descricao}</td>
+                    ${colunas}
+                    <td class="nota-cell media-cell">${mediaStr}</td>
+                    <td class="sit-cell" style="color:${corSit}; font-weight:700;">${aprovado}</td>
+                </tr>`
+            }).join('')
+
+            const gerarBlocoMatricula = ({ matricula, diarios }) => `
+            <div class="turma-block">
+                <div class="turma-header">
+                    <span>Turma: <strong>${matricula.turma.descricao}</strong></span>
+                    <span>Matrícula: <strong>${matricula.matricula}</strong></span>
+                </div>
+                <table class="notas-table">
+                    <thead>
+                        <tr>
+                            <th class="diario-name">Diário / Disciplina</th>
+                            ${todasDescricoes.map(d => `<th class="nota-cell">${d}</th>`).join('')}
+                            <th class="nota-cell media-cell">Média</th>
+                            <th class="sit-cell">Situação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${gerarLinhasDiarios(diarios)}
+                    </tbody>
+                </table>
+            </div>`
+
+            const html = `
+            <!DOCTYPE html>
+            <html lang="pt-br">
+            <head>
+                <meta charset="UTF-8">
+                <title>Boletim</title>
+                <style>
+                    * { box-sizing: border-box; }
+                    body {
+                        margin: 0;
+                        font-family: Arial, Helvetica, sans-serif;
+                        color: #111;
+                        font-size: 10pt;
+                    }
+                    .page {
+                        width: 297mm;
+                        min-height: 210mm;
+                        margin: 0 auto;
+                        background: #fff;
+                        padding: 10mm 12mm;
+                    }
+                    .header {
+                        display: grid;
+                        grid-template-columns: 22mm 1fr 28mm;
+                        gap: 8mm;
+                        align-items: center;
+                        padding-bottom: 6mm;
+                        border-bottom: 2px solid #111;
+                        margin-bottom: 8mm;
+                    }
+                    .logoBox {
+                        width: 22mm;
+                        height: 22mm;
+                        border: 1px solid #111;
+                        border-radius: 3mm;
+                        overflow: hidden;
+                    }
+                    .logoBox img { width: 100%; height: 100%; object-fit: cover; }
+                    .headerText .org {
+                        font-weight: 700;
+                        font-size: 13pt;
+                        line-height: 1.1;
+                        text-transform: uppercase;
+                    }
+                    .headerText .dept { margin-top: 2mm; font-size: 9pt; }
+                    .headerText .docTitle {
+                        margin-top: 3mm;
+                        font-weight: 700;
+                        font-size: 11pt;
+                        letter-spacing: .4px;
+                        text-transform: uppercase;
+                    }
+                    .foto-aluno {
+                        width: 28mm;
+                        height: 35mm;
+                        object-fit: cover;
+                        border-radius: 2mm;
+                        border: 1px solid #ccc;
+                    }
+                    .aluno-info {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 4px 12px;
+                        margin-bottom: 6mm;
+                        padding: 5mm;
+                        border: 1px solid #ddd;
+                        border-radius: 3mm;
+                        background: #fafafa;
+                    }
+                    .aluno-info .field { font-size: 9pt; }
+                    .aluno-info .field span { font-weight: 600; }
+                    .turma-block { margin-bottom: 8mm; }
+                    .turma-header {
+                        display: flex;
+                        justify-content: space-between;
+                        background: #1e40af;
+                        color: #fff;
+                        padding: 3mm 5mm;
+                        border-radius: 2mm 2mm 0 0;
+                        font-size: 10pt;
+                    }
+                    .notas-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 9pt;
+                    }
+                    .notas-table th {
+                        background: #dbeafe;
+                        border: 1px solid #93c5fd;
+                        padding: 3px 6px;
+                        text-align: center;
+                        font-weight: 700;
+                    }
+                    .notas-table td {
+                        border: 1px solid #e2e8f0;
+                        padding: 3px 6px;
+                    }
+                    .notas-table tbody tr:nth-child(even) { background: #f8fafc; }
+                    .diario-name { text-align: left; min-width: 30mm; }
+                    .nota-cell { text-align: center; min-width: 12mm; }
+                    .media-cell { font-weight: 700; background: #fef9c3 !important; }
+                    .sit-cell { text-align: center; min-width: 22mm; font-size: 8.5pt; }
+                    .rodape {
+                        margin-top: 12mm;
+                        text-align: center;
+                        font-size: 8pt;
+                        color: #666;
+                        border-top: 1px solid #ddd;
+                        padding-top: 4mm;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="page">
+                    <header class="header">
+                        <div class="logoBox">
+                            <img src="${escola.logo}" alt="Logo">
+                        </div>
+                        <div class="headerText">
+                            <div class="org">${escola.nome}</div>
+                            <div class="dept">${escola.endereco} - ${escola.bairro}</div>
+                            <div class="dept">${escola.cidade} - ${escola.estado}</div>
+                            <div class="dept">E-mail: ${escola.email} | Tel: ${escola.telefone}</div>
+                            <div class="docTitle">Boletim Escolar</div>
+                        </div>
+                        <img class="foto-aluno" src="${aluno.foto}" alt="Foto do aluno">
+                    </header>
+
+                    <div class="aluno-info">
+                        <div class="field">Nome: <span>${aluno.nome}</span></div>
+                        <div class="field">Nascimento: <span>${dataBrasil(aluno.nascimento)}</span></div>
+                        <div class="field">Mãe: <span>${aluno.mae || '-'}</span></div>
+                        <div class="field">Pai: <span>${aluno.pai || '-'}</span></div>
+                        <div class="field">Cidade: <span>${aluno.cidade || '-'} - ${aluno.estado || ''}</span></div>
+                        <div class="field">Telefone: <span>${aluno.telefone1 || '-'}</span></div>
+                    </div>
+
+                    ${turmasComDiarios.map(gerarBlocoMatricula).join('')}
+
+                    <div class="rodape">
+                        Documento gerado em ${new Date().toLocaleDateString('pt-BR')} &nbsp;|&nbsp; ${escola.nome}
+                    </div>
+                </div>
+            </body>
+            </html>`
+
+            browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })
+            const page = await browser.newPage()
+            await page.setContent(html, { waitUntil: 'networkidle0' })
+            const pdfBuffer = await page.pdf({
+                format: 'A4',
+                landscape: true,
+                printBackground: true,
+                margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' },
+            })
+
+            res.setHeader('Content-Type', 'application/pdf')
+            res.setHeader('Content-Disposition', `attachment; filename="boletim-${aluno.nome}.pdf"`)
+            res.send(pdfBuffer)
+        } catch (err) {
+            console.error(err)
+            res.status(500).json({ erro: 'Falha ao gerar boletim' })
+        } finally {
+            if (browser) await browser.close()
+        }
+    }
 
 }
 
