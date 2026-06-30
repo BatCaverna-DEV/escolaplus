@@ -388,7 +388,7 @@ verso deste.
                         return `<td class="nota-cell">${nota ? formatarNota(nota.valor) : '-'}</td>`
                     }).join('')
                     const mediaStr = media !== null ? media.toFixed(1).replace('.', ',') : '-'
-                    const aprovado = media !== null ? (media >= 7 ? 'APROVADO' : 'REPROVADO') : '-'
+                    const aprovado = media !== null ? (media >= 7 ? 'APROVADO' : 'RECUPERAÇÃO') : '-'
                     const cor = media !== null ? (media >= 7 ? '#15803d' : '#b91c1c') : '#666'
                     return `<tr>
                         <td class="diario-name">${diario.descricao}</td>
@@ -571,7 +571,7 @@ verso deste.
                     return `<td class="nota-cell">${nota ? formatarNota(nota.valor) : '-'}</td>`
                 }).join('')
                 const mediaStr = media !== null ? media.toFixed(1).replace('.', ',') : '-'
-                const aprovado = media !== null ? (media >= 7 ? 'APROVADO' : 'REPROVADO') : '-'
+                const aprovado = media !== null ? (media >= 7 ? 'APROVADO' : 'RECUPERAÇÃO') : '-'
                 const corSit = media !== null ? (media >= 7 ? '#15803d' : '#b91c1c') : '#666'
                 return `
                 <tr>
