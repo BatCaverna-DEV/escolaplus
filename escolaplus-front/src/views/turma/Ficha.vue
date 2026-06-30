@@ -4,6 +4,30 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { dataBrasil, statusPadrao } from "@/services/format.js";
 
+const gerandoBoletins = ref(false)
+
+async function baixarBoletinsTurma() {
+  gerandoBoletins.value = true
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_BASE}/impressao/boletins-turma/${id}`,
+      { headers: { Authorization: `Bearer ${localStorage.getItem("escola_token")}` } }
+    )
+    if (!res.ok) { alert('Erro ao gerar boletins'); return }
+    const blob = await res.blob()
+    const url  = window.URL.createObjectURL(blob)
+    const a    = document.createElement('a')
+    a.href     = url
+    a.download = `boletins-${turma.value.descricao || 'turma'}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
+  } finally {
+    gerandoBoletins.value = false
+  }
+}
+
 const route      = useRoute();
 const turma      = ref({})
 const diarios    = ref([])
@@ -34,6 +58,10 @@ onMounted(async () => {
         Turma — {{ turma.descricao }}
       </h4>
       <div class="page-actions">
+        <button class="btn btn-sm btn-outline-primary" @click="baixarBoletinsTurma" :disabled="gerandoBoletins || !matriculas.length">
+          <span v-if="gerandoBoletins" class="spinner-border spinner-border-sm me-1"></span>
+          <font-awesome-icon v-else icon="fa-solid fa-graduation-cap" class="me-1" />Boletins da Turma
+        </button>
         <RouterLink class="btn btn-sm btn-primary" :to="'/turma/editar/' + turma.id">
           <font-awesome-icon icon="fa-solid fa-pen-to-square" class="me-1" />Editar
         </RouterLink>
